@@ -1,3 +1,7 @@
+---
+render_macros: false
+---
+
 # Custom Component Catalogs
 
 Extend A2UI with a catalog of your own components — video players, maps, charts, or anything your application needs.
