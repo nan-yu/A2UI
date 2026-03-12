@@ -53,7 +53,7 @@ export const appConfig: ApplicationConfig = {
 };
 ```
 
-The `DEFAULT_CATALOG` includes all standard A2UI components: Text, Button, TextField, Image, Card, Row, Column, Tabs, Modal, Slider, CheckBox, MultipleChoice, DateTimeInput, Divider, Icon, Video, and AudioPlayer.
+The `DEFAULT_CATALOG` includes all standard A2UI components: Text, Button, TextField, Image, Card, Row, Column, List, Tabs, Modal, Slider, CheckBox, MultipleChoice, DateTimeInput, Divider, Icon, Video, and AudioPlayer.
 
 ## Step 3: Add the Chat Canvas
 
