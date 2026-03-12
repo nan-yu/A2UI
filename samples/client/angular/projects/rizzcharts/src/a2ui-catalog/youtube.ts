@@ -108,9 +108,18 @@ export class YouTube extends DynamicComponent<Types.CustomNode> {
     this.resolvePrimitive(this.autoplay() ?? null),
   );
 
+  private static readonly YOUTUBE_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
+
   protected readonly safeUrl = computed((): SafeResourceUrl | null => {
     const id = this.resolvedVideoId();
     if (!id) return null;
+
+    // Validate video ID format before constructing URL
+    if (!YouTube.YOUTUBE_ID_REGEX.test(id)) {
+      console.error('Invalid YouTube video ID received from agent:', id);
+      return null;
+    }
+
     const autoplay = this.resolvedAutoplay() ? '1' : '0';
     const url = `https://www.youtube.com/embed/${encodeURIComponent(id)}?autoplay=${autoplay}&rel=0`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
