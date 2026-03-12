@@ -110,7 +110,7 @@ export class YouTube extends DynamicComponent<Types.CustomNode> {
   protected readonly safeUrl = computed(() => {
     const id = this.resolvedVideoId();
     if (!id) return null;
-    const url = `https://www.youtube.com/embed/${id}`;
+    const url = `https://www.youtube.com/embed/${encodeURIComponent(id)}`;
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   });
 
