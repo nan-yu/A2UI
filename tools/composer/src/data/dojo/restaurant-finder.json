@@ -347,5 +347,99 @@
         }
       ]
     }
+  },
+  {
+    "clientEvent": {
+      "name": "updateDataModel",
+      "surfaceId": "restaurant-list",
+      "path": "/cuisine",
+      "valueString": "Italian"
+    }
+  },
+  {
+    "action": {
+      "name": "search_restaurants",
+      "surfaceId": "restaurant-list",
+      "sourceComponentId": "search_button",
+      "timestamp": "2026-03-15T14:00:00Z",
+      "context": {
+        "location": "New York, NY",
+        "cuisine": "Italian",
+        "distance": "5"
+      }
+    }
+  },
+  {
+    "surfaceUpdate": {
+      "surfaceId": "restaurant-list",
+      "components": [
+        {
+          "id": "result_0_name",
+          "component": {
+            "Text": {
+              "usageHint": "h2",
+              "text": {
+                "literalString": "Carbone"
+              }
+            }
+          }
+        },
+        {
+          "id": "result_0_rating",
+          "component": {
+            "Text": {
+              "usageHint": "body1",
+              "text": {
+                "literalString": "★★★★★"
+              }
+            }
+          }
+        },
+        {
+          "id": "result_0_detail",
+          "component": {
+            "Text": {
+              "usageHint": "body2",
+              "text": {
+                "literalString": "Classic Italian-American dining."
+              }
+            }
+          }
+        },
+        {
+          "id": "result_1_name",
+          "component": {
+            "Text": {
+              "usageHint": "h2",
+              "text": {
+                "literalString": "L'Artusi"
+              }
+            }
+          }
+        },
+        {
+          "id": "result_1_rating",
+          "component": {
+            "Text": {
+              "usageHint": "body1",
+              "text": {
+                "literalString": "★★★★☆"
+              }
+            }
+          }
+        },
+        {
+          "id": "result_1_detail",
+          "component": {
+            "Text": {
+              "usageHint": "body2",
+              "text": {
+                "literalString": "Modern Italian dishes & an extensive wine list."
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 ]

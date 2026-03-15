@@ -1281,5 +1281,33 @@
         }
       ]
     }
+  },
+  {
+    "action": {
+      "name": "custom_action",
+      "surfaceId": "demo-buttons",
+      "sourceComponentId": "demo-btn-3",
+      "timestamp": "2026-03-15T12:05:00Z",
+      "context": {
+        "info": "Custom Button Clicked"
+      }
+    }
+  },
+  {
+    "surfaceUpdate": {
+      "surfaceId": "response-surface",
+      "components": [
+        {
+          "id": "response-text",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "Agent Processed Action: ACTION: custom_action with {\"info\": \"Custom Button Clicked\"} at 12:05:00"
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 ]
