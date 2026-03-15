@@ -20,6 +20,7 @@ import { scenarios, ScenarioId } from '@/data/dojo';
 
 export default function DojoPage() {
   const [activeTab, setActiveTab] = useState<'data' | 'config'>('data');
+  const [mobileView, setMobileView] = useState<'data' | 'config' | 'renderers'>('renderers');
   const [renderers, setRenderers] = useState({ react: true, lit: false, discord: true });
   const [selectedScenario, setSelectedScenario] = useState<ScenarioId>('kitchen-sink');
 
@@ -51,10 +52,10 @@ export default function DojoPage() {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground font-sans selection:bg-primary/30">
       {/* Top Header / Command Center */}
-      <header className="relative z-10 flex h-16 items-center justify-between gap-4 border-b bg-background/80 px-6 backdrop-blur-md">
+      <header className="relative z-10 flex h-auto md:h-16 flex-col md:flex-row items-center justify-between gap-3 border-b bg-background/80 px-4 py-3 md:px-6 md:py-0 backdrop-blur-md">
         
         {/* Left Section: Tab Toggle */}
-        <div className="flex w-64 items-center gap-1 rounded-xl bg-muted/50 p-1 shadow-inner border border-border/50">
+        <div className="hidden md:flex w-64 items-center gap-1 rounded-xl bg-muted/50 p-1 shadow-inner border border-border/50">
           <Button
             variant="ghost"
             size="sm"
@@ -80,7 +81,7 @@ export default function DojoPage() {
         </div>
 
         {/* Center Section: Playback Controls */}
-        <div className="flex flex-1 max-w-2xl items-center gap-6 px-4">
+        <div className="flex flex-1 w-full md:w-auto max-w-2xl items-center justify-between md:justify-center gap-3 md:gap-6 px-0 md:px-4">
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" className="h-9 w-9 rounded-full border-border/50 shadow-sm" onClick={stop}>
               <SkipBack className="h-4 w-4 text-muted-foreground" />
@@ -138,7 +139,7 @@ export default function DojoPage() {
         </div>
 
         {/* Right Section: Scenario Selection */}
-        <div className="flex w-64 items-center justify-end">
+        <div className="flex w-full md:w-64 items-center justify-end mt-1 md:mt-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="h-9 w-full justify-between border-border/50 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground font-medium">
@@ -165,10 +166,13 @@ export default function DojoPage() {
       </header>
 
       {/* Main Split Layout */}
+      
+
+
       <ResizablePanelGroup direction="horizontal" className="flex-1">
         
         {/* Left Pane: JSONL Source or Configuration */}
-        <ResizablePanel defaultSize={28} minSize={20} maxSize={40} className="bg-muted/20 border-r border-border/50">
+        <ResizablePanel defaultSize={28} minSize={20} maxSize={40} className={`bg-muted/20 border-r border-border/50 ${mobileView === "data" || mobileView === "config" ? "flex" : "hidden md:flex"} flex-col`}>
           <div className="h-full flex flex-col relative">
             <div className="absolute inset-0 overflow-y-auto p-5 custom-scrollbar">
               
@@ -267,18 +271,18 @@ export default function DojoPage() {
           </div>
         </ResizablePanel>
 
-        <ResizableHandle withHandle className="bg-border/50 hover:bg-primary/50 transition-colors" />
+        <ResizableHandle withHandle className="hidden md:flex bg-border/50 hover:bg-primary/50 transition-colors" />
 
         {/* Right Pane: Active Renderers */}
-        <ResizablePanel defaultSize={72}>
+        <ResizablePanel defaultSize={72} className={`${mobileView === "renderers" ? "flex" : "hidden md:flex"} flex-col`}>
           <div className="h-full bg-muted/10 relative overflow-hidden flex flex-col">
             <div className="absolute inset-0 p-6 overflow-y-auto custom-scrollbar">
               <div className={`grid gap-6 min-h-full ${
                 Object.values(renderers).filter(Boolean).length === 1 
-                  ? 'grid-cols-1 max-w-4xl mx-auto' 
+                  ? 'md:grid-cols-1 md:max-w-4xl md:mx-auto' 
                   : Object.values(renderers).filter(Boolean).length === 2 
-                  ? 'grid-cols-2' 
-                  : 'grid-cols-3'
+                  ? 'md:grid-cols-2' 
+                  : 'md:grid-cols-3'
               }`}>
                 
                 {renderers.react && (
@@ -432,6 +436,19 @@ export default function DojoPage() {
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
+
+            {/* Mobile Nav Tabs */}
+      <div className="flex md:hidden w-full items-center gap-1 bg-background/95 backdrop-blur-md p-2 border-t border-border/50 z-50 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+        <Button variant="ghost" size="sm" className={`flex-1 h-12 flex-col gap-1 text-[10px] font-medium ${mobileView === 'data' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`} onClick={() => { setMobileView('data'); setActiveTab('data'); }}>
+          <Zap className="h-4 w-4 mb-0" /> Data
+        </Button>
+        <Button variant="ghost" size="sm" className={`flex-1 h-12 flex-col gap-1 text-[10px] font-medium ${mobileView === 'renderers' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`} onClick={() => setMobileView('renderers')}>
+          <LayoutTemplate className="h-4 w-4 mb-0" /> Render
+        </Button>
+        <Button variant="ghost" size="sm" className={`flex-1 h-12 flex-col gap-1 text-[10px] font-medium ${mobileView === 'config' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground'}`} onClick={() => { setMobileView('config'); setActiveTab('config'); }}>
+          <Settings className="h-4 w-4 mb-0" /> Config
+        </Button>
+      </div>
 
       {/* Global styles for custom scrollbars */}
       <style dangerouslySetInnerHTML={{__html: `
