@@ -195,5 +195,77 @@
         }
       ]
     }
+  },
+  {
+    "clientEvent": {
+      "name": "updateDataModel",
+      "surfaceId": "booking-form",
+      "path": "/partySize",
+      "valueString": "4"
+    }
+  },
+  {
+    "clientEvent": {
+      "name": "updateDataModel",
+      "surfaceId": "booking-form",
+      "path": "/reservationTime",
+      "valueString": "2026-03-20T19:30:00Z"
+    }
+  },
+  {
+    "clientEvent": {
+      "name": "updateDataModel",
+      "surfaceId": "booking-form",
+      "path": "/dietary",
+      "valueString": "Vegetarian"
+    }
+  },
+  {
+    "action": {
+      "name": "submit_booking",
+      "surfaceId": "booking-form",
+      "sourceComponentId": "submit-button",
+      "timestamp": "2026-03-15T12:00:00Z",
+      "context": {
+        "restaurantName": "[RestaurantName]",
+        "partySize": "4",
+        "reservationTime": "2026-03-20T19:30:00Z",
+        "dietary": "Vegetarian",
+        "imageUrl": ""
+      }
+    }
+  },
+  {
+    "surfaceUpdate": {
+      "surfaceId": "booking-form",
+      "components": [
+        {
+          "id": "booking-form-column",
+          "component": {
+            "Column": {
+              "children": {
+                "explicitList": [
+                  "booking-title",
+                  "success-message",
+                  "restaurant-image",
+                  "restaurant-address"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "success-message",
+          "component": {
+            "Text": {
+              "usageHint": "body1",
+              "text": {
+                "literalString": "✅ Booking Confirmed for 4 people on March 20th!"
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 ]

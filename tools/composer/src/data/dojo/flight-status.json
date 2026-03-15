@@ -124,5 +124,47 @@
         }
       ]
     }
+  },
+  {
+    "action": {
+      "name": "refresh_flight",
+      "surfaceId": "flight-1",
+      "sourceComponentId": "action-btn",
+      "timestamp": "2026-03-15T12:05:00Z",
+      "context": {
+        "flightNumber": "UA123"
+      }
+    }
+  },
+  {
+    "updateComponents": {
+      "surfaceId": "flight-1",
+      "components": [
+        {
+          "id": "status-text",
+          "type": "Text",
+          "props": {
+            "text": "Delayed (Weather)",
+            "color": "warning",
+            "weight": "bold"
+          }
+        },
+        {
+          "id": "arr-time",
+          "type": "Text",
+          "props": {
+            "text": "08:30 PM",
+            "color": "warning"
+          }
+        },
+        {
+          "id": "gate-text",
+          "type": "Text",
+          "props": {
+            "text": "Gate: G8"
+          }
+        }
+      ]
+    }
   }
 ]

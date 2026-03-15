@@ -486,5 +486,60 @@
         }
       ]
     }
+  },
+  {
+    "action": {
+      "name": "message_contact",
+      "surfaceId": "contact-card",
+      "sourceComponentId": "btn_msg",
+      "timestamp": "2026-03-15T13:00:00Z",
+      "context": {
+        "email": "alex.jordan@example.com"
+      }
+    }
+  },
+  {
+    "surfaceUpdate": {
+      "surfaceId": "contact-card",
+      "components": [
+        {
+          "id": "action_buttons_row",
+          "component": {
+            "Row": {
+              "children": {
+                "explicitList": [
+                  "btn_msg_sent",
+                  "btn_call",
+                  "btn_meet"
+                ]
+              },
+              "justify": "spaceBetween",
+              "align": "center"
+            }
+          }
+        },
+        {
+          "id": "btn_msg_sent",
+          "component": {
+            "Button": {
+              "child": "btn_msg_sent_text",
+              "action": {
+                "name": "message_contact"
+              }
+            }
+          }
+        },
+        {
+          "id": "btn_msg_sent_text",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "Message Sent ✓"
+              }
+            }
+          }
+        }
+      ]
+    }
   }
 ]

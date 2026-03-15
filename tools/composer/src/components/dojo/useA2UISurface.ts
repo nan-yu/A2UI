@@ -3,9 +3,7 @@ import { transpileToV0_8 } from '@/lib/transcoder';
 
 export interface ComponentInstance {
   id: string;
-  type?: string;
-  props?: any;
-  component?: any; // Older format support
+  component: Record<string, any>;
 }
 
 export interface A2UISurfaceState {
@@ -32,9 +30,33 @@ export function useA2UISurface(messages: any[]): A2UISurfaceState {
       // Handle surfaceUpdate
       if (v0_8msg.surfaceUpdate) {
         const newComponents = v0_8msg.surfaceUpdate.components || [];
-        for (const comp of newComponents) {
-          if (comp.id) {
-            componentsMap.set(comp.id, comp);
+        for (const rawComp of newComponents) {
+          if (rawComp.id) {
+            let normalizedComp: ComponentInstance;
+            
+            if (rawComp.component) {
+              // Already in v0.8 format
+              normalizedComp = {
+                id: rawComp.id,
+                component: rawComp.component
+              };
+            } else if (rawComp.type) {
+              // v0.9-ish format (type/props) -> convert to v0.8 component map
+              normalizedComp = {
+                id: rawComp.id,
+                component: {
+                  [rawComp.type]: rawComp.props || {}
+                }
+              };
+            } else {
+              // Fallback or unknown format
+              normalizedComp = {
+                id: rawComp.id,
+                component: rawComp
+              };
+            }
+            
+            componentsMap.set(rawComp.id, normalizedComp);
           }
         }
       }
