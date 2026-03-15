@@ -6,18 +6,20 @@ export interface UseJsonlPlayerOptions<T> {
   messages: T[];
   autoPlay?: boolean;
   baseIntervalMs?: number;
+  initialProgress?: number;
 }
 
 export function useJsonlPlayer<T>({
   messages,
   autoPlay = false,
   baseIntervalMs = 500,
+  initialProgress = 0,
 }: UseJsonlPlayerOptions<T>) {
   const [playbackState, setPlaybackState] = useState<PlaybackState>(
     autoPlay ? 'playing' : 'stopped'
   );
   // progress represents the *number of messages* currently active (0 to totalMessages)
-  const [progress, setProgress] = useState(0); 
+  const [progress, setProgress] = useState(Math.min(initialProgress, messages.length)); 
   const [speed, setSpeed] = useState(1);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
