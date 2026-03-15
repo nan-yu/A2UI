@@ -1,4 +1,5 @@
-export const runtime = 'edge';
+
+export const dynamic = "force-static";
 /**
  * Copyright 2026 Google LLC
  *

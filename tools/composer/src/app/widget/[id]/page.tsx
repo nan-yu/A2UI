@@ -1,4 +1,4 @@
-export const runtime = 'edge';
+
 /**
  * Copyright 2026 Google LLC
  */
