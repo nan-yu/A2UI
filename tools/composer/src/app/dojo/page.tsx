@@ -24,6 +24,17 @@ export default function DojoPage() {
   const [renderers, setRenderers] = useState({ react: true, lit: false, discord: true });
   const [selectedScenario, setSelectedScenario] = useState<ScenarioId>('kitchen-sink');
 
+  // Read URL params initially
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const scenarioParam = params.get('scenario');
+      if (scenarioParam && Object.keys(scenarios).includes(scenarioParam)) {
+        setSelectedScenario(scenarioParam as ScenarioId);
+      }
+    }
+  }, []);
+
   const {
     playbackState,
     progress,
@@ -40,6 +51,20 @@ export default function DojoPage() {
     autoPlay: false,
     baseIntervalMs: 1000
   });
+
+  // Read ?step=N from URL on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const stepParam = params.get('step');
+      if (stepParam) {
+        const step = parseInt(stepParam, 10);
+        if (!isNaN(step)) {
+          seek(step);
+        }
+      }
+    }
+  }, [seek]);
 
   // Auto-scroll logic for the JSONL pane
   const streamEndRef = useRef<HTMLDivElement>(null);
