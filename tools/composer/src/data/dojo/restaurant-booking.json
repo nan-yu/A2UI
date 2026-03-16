@@ -195,5 +195,133 @@
         }
       ]
     }
+  },
+  {
+    "clientEvent": {
+      "surfaceId": "booking-form",
+      "name": "userAction",
+      "sourceComponentId": "submit-button",
+      "timestamp": "2026-03-16T14:30:00Z",
+      "context": {
+        "action": "book_restaurant",
+        "restaurantName": "Szechuan Garden",
+        "partySize": "4",
+        "reservationTime": "2026-03-20T19:00:00",
+        "dietary": "No shellfish"
+      }
+    }
+  },
+  {
+    "surfaceUpdate": {
+      "surfaceId": "booking-form",
+      "components": [
+        {
+          "id": "booking-form-column",
+          "component": {
+            "Column": {
+              "children": {
+                "explicitList": [
+                  "confirm-icon",
+                  "confirm-title",
+                  "confirm-details",
+                  "confirm-divider",
+                  "confirm-summary",
+                  "done-button"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "confirm-icon",
+          "component": {
+            "Text": {
+              "usageHint": "h1",
+              "text": {
+                "literalString": "\u2705"
+              }
+            }
+          }
+        },
+        {
+          "id": "confirm-title",
+          "component": {
+            "Text": {
+              "usageHint": "h2",
+              "text": {
+                "path": "/confirmTitle"
+              }
+            }
+          }
+        },
+        {
+          "id": "confirm-details",
+          "component": {
+            "Text": {
+              "text": {
+                "path": "/confirmDetails"
+              }
+            }
+          }
+        },
+        {
+          "id": "confirm-divider",
+          "component": {
+            "Divider": {}
+          }
+        },
+        {
+          "id": "confirm-summary",
+          "component": {
+            "Text": {
+              "text": {
+                "path": "/confirmSummary"
+              }
+            }
+          }
+        },
+        {
+          "id": "done-button",
+          "component": {
+            "Button": {
+              "child": "done-button-text",
+              "action": {
+                "name": "dismiss"
+              }
+            }
+          }
+        },
+        {
+          "id": "done-button-text",
+          "component": {
+            "Text": {
+              "text": {
+                "literalString": "Done"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "dataModelUpdate": {
+      "surfaceId": "booking-form",
+      "path": "/",
+      "contents": [
+        {
+          "key": "confirmTitle",
+          "valueString": "Reservation Confirmed!"
+        },
+        {
+          "key": "confirmDetails",
+          "valueString": "Szechuan Garden \u2014 4 guests \u2014 Mar 20, 7:00 PM"
+        },
+        {
+          "key": "confirmSummary",
+          "valueString": "Dietary note: No shellfish. Confirmation #SZG-4821 sent to your email."
+        }
+      ]
+    }
   }
 ]
