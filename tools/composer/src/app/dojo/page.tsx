@@ -334,7 +334,7 @@ export default function DojoPage() {
               <div className="max-w-4xl mx-auto min-h-full">
                 <div className="flex flex-col rounded-2xl border border-border/60 bg-background shadow-xl overflow-hidden min-h-[500px] transition-all duration-300 hover:shadow-2xl">
                   <div className="h-11 bg-muted/30 border-b flex items-center px-4 justify-between backdrop-blur-sm">
-                    <div className="flex items-center gap-2">
+                    <div className="hidden sm:flex items-center gap-2">
                       <div className="w-2.5 h-2.5 rounded-full bg-red-400/80" />
                       <div className="w-2.5 h-2.5 rounded-full bg-amber-400/80" />
                       <div className="w-2.5 h-2.5 rounded-full bg-green-400/80" />
