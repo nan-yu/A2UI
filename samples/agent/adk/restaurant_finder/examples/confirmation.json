@@ -22,6 +22,25 @@
           }
         },
         {
+          "id": "confirmation-column",
+          "component": {
+            "Column": {
+              "children": {
+                "explicitList": [
+                  "confirm-title",
+                  "confirm-image",
+                  "confirm-details",
+                  "confirm-dietary",
+                  "confirm-text",
+                  "divider1",
+                  "divider2",
+                  "divider3"
+                ]
+              }
+            }
+          }
+        },
+        {
           "id": "confirm-title",
           "component": {
             "Text": {

@@ -15,15 +15,14 @@ async def main():
     messages = []
     
     async for event in agent.stream(query, session_id):
-        if event.get("is_task_complete"):
-            parts = event.get("parts", [])
-            for p in parts:
-                if p.root.metadata and p.root.metadata.get("mimeType") == "application/json+a2ui":
-                    # Some payloads are already a list, some are dicts
-                    if isinstance(p.root.data, list):
-                        messages.extend(p.root.data)
-                    else:
-                        messages.append(p.root.data)
+        parts = event.get("parts", [])
+        for p in parts:
+            if p.root.metadata and p.root.metadata.get("mimeType") == "application/json+a2ui":
+                # Some payloads are already a list, some are dicts
+                if isinstance(p.root.data, list):
+                    messages.extend(p.root.data)
+                else:
+                    messages.append(p.root.data)
                     
     if messages:
         out_path = "../../../../tools/composer/src/data/dojo/contact-lookup.json"
