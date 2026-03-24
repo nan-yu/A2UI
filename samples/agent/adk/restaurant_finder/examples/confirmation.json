@@ -29,12 +29,12 @@
                 "explicitList": [
                   "confirm-title",
                   "confirm-image",
-                  "confirm-details",
-                  "confirm-dietary",
-                  "confirm-text",
                   "divider1",
+                  "confirm-details",
                   "divider2",
-                  "divider3"
+                  "confirm-dietary",
+                  "divider3",
+                  "confirm-text"
                 ]
               }
             }
