@@ -1,13 +1,44 @@
 import asyncio
 import json
 import logging
+import os
+import shutil
 from agent import RestaurantAgent
 from a2ui.core.schema.constants import VERSION_0_8
 
 logging.basicConfig(level=logging.INFO)
 
+def save_messages_with_image_copies(messages: list, image_base_url: str, out_path: str):
+    """
+    Saves the A2UI messages payload to the composer tools directory, copies any 
+    local agent images to the composer's public assets folder, and rewrites the 
+    JSON payload URLs to use the new public Next.js paths.
+    """
+    agent_dir = os.path.basename(os.path.abspath("."))
+    src_images = "images"
+    dest_images = f"../../../../tools/composer/public/images/{agent_dir}"
+    
+    # Copy images if they exist
+    if os.path.exists(src_images):
+        os.makedirs(dest_images, exist_ok=True)
+        for file in os.listdir(src_images):
+            src_path = os.path.join(src_images, file)
+            if os.path.isfile(src_path):
+                shutil.copy2(src_path, dest_images)
+        print(f"Copied images from {src_images} to {dest_images}")
+
+    # Update JSON payload to use the new public asset paths
+    json_str = json.dumps(messages, indent=2)
+    # We replace the local serving url with the Next.js public URL
+    json_str = json_str.replace(image_base_url, f"/images/{agent_dir}/")
+    
+    with open(out_path, "w") as f:
+        f.write(json_str)
+    print(f"Recorded {len(messages)} A2UI message parts to {out_path}")
+
 async def main():
-    agent = RestaurantAgent(base_url="http://localhost:10007")
+    base_url = "http://localhost:10007"
+    agent = RestaurantAgent(base_url=base_url)
     query = "Find me Szechuan restaurants in New York"
     session_id = "test_session_3"
     
@@ -27,9 +58,8 @@ async def main():
                     
     if messages:
         out_path = "../../../../tools/composer/src/data/dojo/restaurant-finder.json"
-        with open(out_path, "w") as f:
-            json.dump(messages, f, indent=2)
-        print(f"Recorded {len(messages)} A2UI message parts to {out_path}")
+        image_base_url = f"{base_url}/static/"
+        save_messages_with_image_copies(messages, image_base_url, out_path)
     else:
         print("No A2UI messages produced.")
 
