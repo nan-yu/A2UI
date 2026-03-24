@@ -326,16 +326,13 @@ class ContactAgent:
 
       if is_valid:
         logger.info(
-            "--- ContactAgent.stream: Response is valid. Sending final response"
+            "--- ContactAgent.stream: Response is valid. Task complete"
             f" (Attempt {attempt}). ---"
-        )
-        final_parts = parse_response_to_parts(
-            final_response_content, fallback_text="OK."
         )
 
         yield {
             "is_task_complete": True,
-            "parts": final_parts,
+            "parts": [],
         }
         return  # We're done, exit the generator
 
