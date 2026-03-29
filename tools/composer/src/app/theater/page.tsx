@@ -22,12 +22,12 @@ import {
   ChevronDown, Activity, Code2,
   Zap, LayoutTemplate, Monitor, Database
 } from 'lucide-react';
-import { useStreamingPlayer } from '@/components/dojo/useStreamingPlayer';
-import { useA2UISurface } from '@/components/dojo/useA2UISurface';
+import { useStreamingPlayer } from '@/components/theater/useStreamingPlayer';
+import { useA2UISurface } from '@/components/theater/useA2UISurface';
 import { A2UIViewer } from '@copilotkit/a2ui-renderer';
 import { Button } from '@/components/ui/button';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { scenarios, ScenarioId } from '@/data/dojo';
+import { scenarios, ScenarioId } from '@/data/theater';
 
 const RENDERERS = ['Lit (Web Components)', 'React', 'Angular'] as const;
 type RendererType = typeof RENDERERS[number];
@@ -57,7 +57,7 @@ function formatBytes(bytes: number): string {
   return `${(bytes / 1024).toFixed(1)} KB`;
 }
 
-export default function DojoPage() {
+export default function TheaterPage() {
   const [leftTab, setLeftTab] = useState<LeftTab>('data');
   const [mobileView, setMobileView] = useState<'left' | 'renderer'>('renderer');
   const [renderer, setRenderer] = useState<RendererType>(RENDERERS[0]);
@@ -108,6 +108,31 @@ export default function DojoPage() {
       eventsEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
   }, [progress, playbackState]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't capture when typing in inputs
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      switch (e.key) {
+        case ' ':
+          e.preventDefault();
+          playbackState === 'playing' ? pause() : play();
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          seek(Math.min(progress + (e.shiftKey ? 5 : 1), totalChunks));
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          seek(Math.max(progress - (e.shiftKey ? 5 : 1), 0));
+          break;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [playbackState, progress, totalChunks, play, pause, seek]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground font-sans selection:bg-primary/30">
@@ -362,7 +387,7 @@ export default function DojoPage() {
                           root={surfaceState.root}
                           components={surfaceState.components}
                           data={surfaceState.data}
-                          onAction={(action) => console.log('Dojo Action:', action)}
+                          onAction={(action) => console.log('Theater Action:', action)}
                         />
                       </div>
                     ) : (
