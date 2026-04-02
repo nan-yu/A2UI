@@ -75,6 +75,19 @@ directory:
 uv run pyink .
 ```
 
+## Releasing the SDK
+
+To release a new version of the SDK, follow these steps:
+
+1. Update the version in `src/a2ui/version.py`.
+2. Run the release script from the `agent_sdks/python` directory:
+
+   ```bash
+   ./release.sh
+   ```
+
+The script will build the package, upload it to the Artifact Registry, and trigger the release pipeline.
+
 ## Disclaimer
 
 Important: The sample code provided is for demonstration purposes and
