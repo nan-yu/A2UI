@@ -36,10 +36,8 @@ export class A2aServiceImpl implements A2aService {
 
     if (response.ok) {
       const data = await response.json();
-      if (data.contextId) {
-        this.contextId = data.contextId;
-      } else if (data.result?.contextId) { // fallback if it's there
-        this.contextId = data.result.contextId;
+      if (data.contextId || data.result?.contextId) {
+        this.contextId = data.contextId || data.result?.contextId;
       }
       return data;
     }

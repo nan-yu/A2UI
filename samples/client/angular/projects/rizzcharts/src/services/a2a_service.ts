@@ -44,8 +44,8 @@ export class A2aService implements A2aServiceInterface {
 
     if (response.ok) {
       const json = await response.json() as SendMessageSuccessResponse & { contextId?: string };
-      if (json.contextId) {
-        this.contextId = json.contextId;
+      if (json.contextId || json.result?.contextId) {
+        this.contextId = json.contextId || json.result?.contextId;
       }
       return json;
     }

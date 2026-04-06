@@ -64,10 +64,10 @@ export class A2UIClient {
       if (responseData.contextId) {
         this.#contextId = responseData.contextId;
       }
-      const parts = responseData.parts || responseData;
+      const parts = Array.isArray(responseData) ? responseData : (responseData.parts || []);
       const messages: v0_8.Types.ServerToClientMessage[] = [];
-      if ("error" in parts) {
-        throw new Error((parts as any).error);
+      if (responseData.error) {
+        throw new Error(responseData.error);
       } else {
         const items = Array.isArray(parts) ? parts : [parts];
         for (const item of items) {

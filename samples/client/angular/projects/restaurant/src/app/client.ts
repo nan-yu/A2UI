@@ -111,7 +111,7 @@ export class Client {
               if (responseData.contextId) {
                 this.contextId = responseData.contextId;
               }
-              const parts = responseData.parts || [];
+              const parts = responseData.parts || (Array.isArray(responseData) ? responseData : []);
               console.log(
                 `[client] [${performance.now().toFixed(2)}ms] Scheduling processing for ${parts.length} parts`
               );
@@ -138,7 +138,7 @@ export class Client {
     if (responseData.contextId) {
       this.contextId = responseData.contextId;
     }
-    const parts = responseData.parts || [];
+    const parts = responseData.parts || (Array.isArray(responseData) ? responseData : []);
     const newMessages = this.processParts(parts);
     messages.push(...newMessages);
   }
