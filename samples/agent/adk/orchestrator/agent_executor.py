@@ -69,7 +69,10 @@ class OrchestratorAgentExecutor(A2aAgentExecutor):
 
     super().__init__(runner=runner, config=config)
 
-  _seen_a2ui_parts = {}
+  from collections import OrderedDict
+
+  _seen_a2ui_parts = OrderedDict()
+  _MAX_SEEN_SESSIONS = 100
 
   @classmethod
   def convert_event_to_a2a_events_and_save_surface_id_to_subagent_name(
@@ -86,6 +89,10 @@ class OrchestratorAgentExecutor(A2aAgentExecutor):
 
     if session_id not in cls._seen_a2ui_parts:
       cls._seen_a2ui_parts[session_id] = set()
+      if len(cls._seen_a2ui_parts) > cls._MAX_SEEN_SESSIONS:
+        cls._seen_a2ui_parts.popitem(last=False)
+
+    cls._seen_a2ui_parts.move_to_end(session_id)
     seen_set = cls._seen_a2ui_parts[session_id]
 
     a2a_events = event_converter.convert_event_to_a2a_events(
@@ -101,9 +108,9 @@ class OrchestratorAgentExecutor(A2aAgentExecutor):
       if a2a_event.status and a2a_event.status.message:
         new_parts = []
         for part in a2a_event.status.message.parts:
-          part_str = part.model_dump_json()
-          if part_str not in seen_set:
-            seen_set.add(part_str)
+          part_key = repr(part)
+          if part_key not in seen_set:
+            seen_set.add(part_key)
             new_parts.append(part)
 
         if not new_parts:
