@@ -3075,3 +3075,62 @@
     - input: "<a2ui-json>invalid json</a2ui-json>"
       expect_error: "Failed to parse JSON"
 
+- name: test_v08_path_heuristic_adds_slash
+  description: Tests that the parser automatically adds a leading slash to paths in v0.8 if missing.
+  catalog:
+    version: "0.8"
+    s2c_schema: "simplified_s2c_v08.json"
+    catalog_schema:
+      catalogId: "test_catalog"
+      components:
+        Text:
+          type: object
+          properties:
+            text:
+              type: object
+              properties:
+                path: {type: string}
+  process_chunk:
+    - input: '<a2ui-json>[{"beginRendering": {"surfaceId": "s1", "root": "root"}}]</a2ui-json>'
+      expect: [{a2ui: [{beginRendering: {surfaceId: "s1", root: "root"}}]}]
+    - input: '<a2ui-json>[{"surfaceUpdate": {"surfaceId": "s1", "components": [{"id": "root", "component": {"Text": {"text": {"path": "some/relative/path"}}}}]}}]</a2ui-json>'
+      expect:
+        - a2ui:
+            - surfaceUpdate:
+                surfaceId: "s1"
+                components:
+                  - id: "root"
+                    component:
+                      Text:
+                        text: {path: "/some/relative/path"}
+
+- name: test_v09_path_heuristic_relative_path
+  description: Tests that the parser does NOT add a leading slash to paths in v0.9.
+  catalog:
+    version: "0.9"
+    s2c_schema: "simplified_s2c_v09.json"
+    catalog_schema:
+      catalogId: "test_catalog"
+      components:
+        Text:
+          type: object
+          properties:
+            text:
+              type: object
+              properties:
+                path: {type: string}
+  process_chunk:
+    - input: '<a2ui-json>[{"version": "v0.9", "createSurface": {"surfaceId": "s1", "catalogId": "test_catalog"}}]</a2ui-json>'
+      expect: [{a2ui: [{version: "v0.9", createSurface: {surfaceId: "s1", catalogId: "test_catalog"}}]}]
+    - input: '<a2ui-json>[{"version": "v0.9", "updateComponents": {"surfaceId": "s1", "components": [{"id": "root", "component": "Text", "text": {"path": "some/relative/path"}}]}}]</a2ui-json>'
+      expect:
+        - a2ui:
+            - version: "v0.9"
+              updateComponents:
+                surfaceId: "s1"
+                components:
+                  - id: "root"
+                    component: "Text"
+                    text: {path: "some/relative/path"}
+
+
