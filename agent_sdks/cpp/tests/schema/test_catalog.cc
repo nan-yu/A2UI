@@ -70,5 +70,3 @@ TEST(CatalogTest, BasicCatalogConfig) {
     EXPECT_TRUE(schema.contains("catalogId"));
     EXPECT_TRUE(schema.contains("components"));
 }
-
-

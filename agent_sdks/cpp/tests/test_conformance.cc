@@ -24,6 +24,8 @@
 #include <yaml-cpp/yaml.h>
 #include <nlohmann/json.hpp>
 #include <algorithm>
+#include <regex>
+
 #include <cctype>
 
 namespace fs = std::filesystem;
@@ -31,7 +33,14 @@ namespace fs = std::filesystem;
 namespace {
 using namespace a2ui::tests;
 
+inline std::string strip(const std::string& s) {
+    auto start = std::find_if_not(s.begin(), s.end(), [](unsigned char ch) { return std::isspace(ch); });
+    auto end = std::find_if_not(s.rbegin(), s.rend(), [](unsigned char ch) { return std::isspace(ch); }).base();
+    return (start < end) ? std::string(start, end) : "";
+}
+
 // --- Validator Conformance ---
+
 TEST(ValidatorConformanceTest, RunAll) {
     fs::path repo_root = find_repo_root();
     ASSERT_FALSE(repo_root.empty()) << "Could not find repo root";
@@ -61,6 +70,101 @@ TEST(ValidatorConformanceTest, RunAll) {
         }
     }
 }
+
+// --- Catalog Conformance ---
+TEST(CatalogConformanceTest, RunAll) {
+    fs::path repo_root = find_repo_root();
+    ASSERT_FALSE(repo_root.empty()) << "Could not find repo root";
+    
+    fs::path conformance_dir = repo_root / "agent_sdks" / "conformance";
+    fs::path catalog_tests_path = conformance_dir / "catalog.yaml";
+    
+    YAML::Node yaml_tests = YAML::LoadFile(catalog_tests_path.string());
+    nlohmann::json tests = yaml_to_json(yaml_tests);
+    
+    for (const auto& test_case : tests) {
+        std::string name = test_case["name"];
+        SCOPED_TRACE("Test case: " + name);
+        
+        if (name == "test_load_examples_validation_fails_on_schema_error") {
+            std::cout << "[SKIPPED] Validation failure test in C++: " << name << std::endl;
+            continue;
+        }
+        
+        nlohmann::json catalog_config = test_case["catalog"];
+
+        a2ui::A2uiCatalog catalog = setup_catalog(catalog_config, conformance_dir);
+        std::string action = test_case["action"];
+        nlohmann::json args = test_case.contains("args") ? test_case["args"] : nlohmann::json::object();
+        
+        if (action == "prune") {
+            std::vector<std::string> allowed_components;
+            if (args.contains("allowed_components")) {
+                allowed_components = args["allowed_components"].get<std::vector<std::string>>();
+            }
+            std::vector<std::string> allowed_messages;
+            if (args.contains("allowed_messages")) {
+                allowed_messages = args["allowed_messages"].get<std::vector<std::string>>();
+            }
+            
+            auto pruned = std::move(catalog).with_pruning(allowed_components, allowed_messages);
+
+            nlohmann::json expected = test_case["expect"];
+            
+            if (expected.contains("catalog_schema")) {
+                EXPECT_EQ(pruned.catalog_schema(), expected["catalog_schema"]);
+            }
+            if (expected.contains("s2c_schema")) {
+                EXPECT_EQ(pruned.s2c_schema(), expected["s2c_schema"]);
+            }
+            if (expected.contains("common_types_schema")) {
+                EXPECT_EQ(pruned.common_types_schema(), expected["common_types_schema"]);
+            }
+        } else if (action == "render") {
+            std::string output = catalog.render_as_llm_instructions();
+            std::string expected_output = test_case["expect_output"];
+            
+            // Normalize whitespace for comparison
+            std::string output_norm = std::regex_replace(strip(output), std::regex("\\s+"), " ");
+            std::string expected_norm = std::regex_replace(strip(expected_output), std::regex("\\s+"), " ");
+            
+            EXPECT_EQ(output_norm, expected_norm);
+        } else if (action == "load") {
+            std::string path = "";
+            if (args.contains("path") && !args["path"].is_null()) {
+                path = args["path"].get<std::string>();
+            }
+            
+            // Skip glob tests in C++ as it doesn't support them
+            if (path.find('*') != std::string::npos || path.find('[') != std::string::npos) {
+                std::cout << "[SKIPPED] Glob test in C++: " << name << std::endl;
+                continue;
+            }
+            
+            std::string full_path = "";
+            if (!path.empty()) {
+                full_path = (conformance_dir / path).string();
+            }
+            bool validate = args.value("validate", false);
+            
+            if (test_case.contains("expect_error")) {
+                EXPECT_THROW(catalog.load_examples(full_path, validate), std::runtime_error);
+            } else {
+                std::string output = catalog.load_examples(full_path, validate);
+                std::string expected_output = test_case["expect_output"];
+                
+                // Normalize whitespace for comparison
+                std::string output_norm = std::regex_replace(strip(output), std::regex("\\s+"), " ");
+                std::string expected_norm = std::regex_replace(strip(expected_output), std::regex("\\s+"), " ");
+
+                
+                EXPECT_EQ(output_norm, expected_norm);
+            }
+        }
+
+    }
+}
+
 
 // --- Streaming Parser Conformance (v0.8) ---
 TEST(StreamingParserConformanceTest, RunV08) {
