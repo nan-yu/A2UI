@@ -132,6 +132,9 @@ static std::string glob_to_regex(const std::string& glob) {
             regex += c;
 
         } else {
+            if (std::string("\\^$+|(){}").find(c) != std::string::npos) {
+                regex += '\\';
+            }
             regex += c;
         }
     }
@@ -147,14 +150,19 @@ std::string A2uiCatalog::load_examples(const std::string& path, bool validate) c
     size_t first_wildcard = path.find_first_of("*?[");
     if (first_wildcard != std::string::npos) {
         size_t last_slash = path.rfind('/', first_wildcard);
-        std::string base_dir = (last_slash == std::string::npos) ? "." : path.substr(0, last_slash);
+        std::string base_dir = (last_slash == std::string::npos) ? "." : (last_slash == 0 ? "/" : path.substr(0, last_slash));
         std::string pattern = (last_slash == std::string::npos) ? path : path.substr(last_slash + 1);
         
         std::string regex_str = glob_to_regex(pattern);
-        std::regex pattern_regex(regex_str);
+        std::regex pattern_regex;
+        try {
+            pattern_regex = std::regex(regex_str);
+        } catch (const std::regex_error& e) {
+            throw std::runtime_error("Failed to parse glob pattern '" + pattern + "' to regex: " + e.what());
+        }
         
         if (fs::exists(base_dir) && fs::is_directory(base_dir)) {
-            for (const auto& entry : fs::recursive_directory_iterator(base_dir)) {
+            for (const auto& entry : fs::recursive_directory_iterator(base_dir, fs::directory_options::skip_permission_denied)) {
                 if (entry.is_regular_file()) {
                     std::string rel_path = fs::relative(entry.path(), base_dir).string();
                     if (std::regex_match(rel_path, pattern_regex) && entry.path().extension() == ".json") {
@@ -165,7 +173,7 @@ std::string A2uiCatalog::load_examples(const std::string& path, bool validate) c
         }
     } else {
         if (fs::is_directory(path)) {
-            for (const auto& entry : fs::directory_iterator(path)) {
+            for (const auto& entry : fs::directory_iterator(path, fs::directory_options::skip_permission_denied)) {
                 if (entry.is_regular_file() && entry.path().extension() == ".json") {
                     matched_files.push_back(entry.path().string());
                 }
