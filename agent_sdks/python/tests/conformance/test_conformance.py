@@ -57,7 +57,7 @@ def load_tests(filename):
 
 
 def setup_catalog(catalog_config):
-  version = catalog_config["version"]
+  version = str(catalog_config["version"])
 
   s2c_schema = catalog_config.get("s2c_schema")
   if isinstance(s2c_schema, str):
@@ -67,7 +67,7 @@ def setup_catalog(catalog_config):
   if isinstance(catalog_schema, str):
     catalog_schema = load_json_file(catalog_schema)
   elif catalog_schema is None:
-    raise ValueError("catalog_schema is required in conformance test catalog config")
+    catalog_schema = {}
 
   common_types_schema = catalog_config.get("common_types_schema")
   if isinstance(common_types_schema, str):
@@ -108,9 +108,17 @@ def test_parser_conformance(name, test_case):
   catalog = setup_catalog(catalog_config)
   parser = A2uiStreamParser(catalog=catalog)
 
-  for step in test_case["process_chunk"]:
-    if "expect_error" in step:
-      with pytest.raises(ValueError, match=step["expect_error"]):
+  steps = test_case.get("steps")
+  if steps is None and "process_chunk" in test_case:
+    steps = test_case["process_chunk"]
+
+  if steps is None and "input" in test_case:
+    steps = [test_case]
+
+  for step in steps:
+    expect_error = step.get("expect_error") or test_case.get("expect_error")
+    if expect_error:
+      with pytest.raises(ValueError, match=expect_error):
         parser.process_chunk(step["input"])
     else:
       parts = parser.process_chunk(step["input"])
@@ -172,13 +180,21 @@ def test_validator_conformance(name, test_case):
   catalog_config = test_case["catalog"]
   catalog = setup_catalog(catalog_config)
 
-  for case in test_case["validate"]:
+  steps = test_case.get("steps")
+  if steps is None and "validate" in test_case:
+    steps = test_case["validate"]
+
+  if steps is None and "payload" in test_case:
+    steps = [test_case]
+
+  for step in steps:
     validator = A2uiValidator(catalog=catalog)
-    if "expect_error" in case:
-      with pytest.raises(ValueError, match=case["expect_error"]):
-        validator.validate(case["payload"])
+    expect_error = step.get("expect_error") or test_case.get("expect_error")
+    if expect_error:
+      with pytest.raises(ValueError, match=expect_error):
+        validator.validate(step["payload"])
     else:
-      validator.validate(case["payload"])
+      validator.validate(step["payload"])
 
 
 # --- Catalog Conformance ---

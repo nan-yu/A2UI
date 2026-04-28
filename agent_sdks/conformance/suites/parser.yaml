@@ -14,21 +14,25 @@
 
 - name: test_parse_empty_response
   description: Tests that empty response raises error.
+  action: parse_full
   input: ""
   expect_error: "not found in response"
 
 - name: test_parse_response_only_text_no_tags
   description: Tests that response without tags raises error.
+  action: parse_full
   input: "Only text, no tags."
   expect_error: "not found in response"
 
 - name: test_parse_response_empty_tags
   description: Tests that empty tags raise error.
+  action: parse_full
   input: "<a2ui-json></a2ui-json>"
   expect_error: "A2UI JSON part is empty"
 
 - name: test_parse_response_only_json_with_tags
   description: Tests parsing only JSON with tags.
+  action: parse_full
   input: "<a2ui-json>[{\"id\": \"test\"}]</a2ui-json>"
   expect:
     - text: ""
@@ -36,6 +40,7 @@
 
 - name: test_parse_response_with_text_and_tags
   description: Tests parsing response with text before tags.
+  action: parse_full
   input: "Hello\n<a2ui-json>[{\"id\": \"test\"}]</a2ui-json>"
   expect:
     - text: "Hello"
@@ -43,6 +48,7 @@
 
 - name: test_parse_response_with_trailing_text
   description: Tests parsing response with trailing text.
+  action: parse_full
   input: "Hello\n<a2ui-json>[{\"id\": \"test\"}]</a2ui-json>\nGoodbye"
   expect:
     - text: "Hello"
@@ -51,6 +57,7 @@
 
 - name: test_parse_response_multiple_blocks
   description: Tests parsing multiple blocks.
+  action: parse_full
   input: "Part 1\n<a2ui-json>\n[{\"id\": \"1\"}]\n</a2ui-json>\nPart 2\n<a2ui-json>\n[{\"id\": \"2\"}]\n</a2ui-json>\nPart 3"
   expect:
     - text: "Part 1"
@@ -61,6 +68,7 @@
 
 - name: test_parse_response_with_markdown_blocks
   description: Tests stripping markdown code blocks inside tags.
+  action: parse_full
   input: "Text\n<a2ui-json>\n```json\n[{\"id\": \"test\"}]\n```\n</a2ui-json>"
   expect:
     - text: "Text"
@@ -68,6 +76,7 @@
 
 - name: test_parse_response_invalid_json
   description: Tests that invalid JSON raises error.
+  action: parse_full
   input: "<a2ui-json>\ninvalid_json\n</a2ui-json>"
   expect_error: "Failed to parse"
 
@@ -112,5 +121,3 @@
   action: has_parts
   input: "Hello <a2ui-json> World"
   expect: false
-
-
