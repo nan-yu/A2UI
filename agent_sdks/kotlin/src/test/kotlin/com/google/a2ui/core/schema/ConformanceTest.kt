@@ -100,13 +100,14 @@ class ConformanceTest {
         val tempFile = java.io.File.createTempFile("custom_catalog", ".json")
         tempFile.deleteOnExit()
         tempFile.writeText(jsonStr)
-        schemaMappings["$URL_PREFIX_V09$SIMPLIFIED_CATALOG_V09"] =
-          tempFile.toURI().toString()
+        schemaMappings["$URL_PREFIX_V09$SIMPLIFIED_CATALOG_V09"] = tempFile.toURI().toString()
         schemaMappings[SIMPLIFIED_CATALOG_V09] = tempFile.toURI().toString()
 
         Json.parseToJsonElement(jsonStr) as JsonObject
       } else {
-        throw IllegalArgumentException("catalog_schema is required in conformance test catalog config")
+        throw IllegalArgumentException(
+          "catalog_schema is required in conformance test catalog config"
+        )
       }
 
     val commonTypesFile = catalogMap["common_types_schema"] as? String

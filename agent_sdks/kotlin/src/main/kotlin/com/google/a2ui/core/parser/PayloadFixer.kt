@@ -21,6 +21,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 /** Validates and applies autofixes to raw JSON strings. */
 object PayloadFixer {
@@ -120,5 +121,43 @@ object PayloadFixer {
       logger.warning("Detected trailing commas in LLM output; applied robust autofix.")
     }
     return fixedJson
+  }
+
+  /**
+   * Recursively adds a leading slash to `path` properties if missing. This is a heuristic applied
+   * to v0.8 payloads where paths were strictly expected to be absolute.
+   */
+  fun fixPathsForV08(element: JsonElement): JsonElement {
+    return when (element) {
+      is JsonObject -> {
+        var modified = false
+        val newMap = mutableMapOf<String, JsonElement>()
+        for ((k, v) in element) {
+          if (k == "path" && v is JsonPrimitive && v.isString) {
+            val content = v.content
+            if (!content.startsWith("/")) {
+              newMap[k] = JsonPrimitive("/${content}")
+              modified = true
+              continue
+            }
+          }
+          val fixedV = fixPathsForV08(v)
+          if (fixedV !== v) modified = true
+          newMap[k] = fixedV
+        }
+        if (modified) JsonObject(newMap) else element
+      }
+      is JsonArray -> {
+        var modified = false
+        val newList =
+          element.map {
+            val fixedIt = fixPathsForV08(it)
+            if (fixedIt !== it) modified = true
+            fixedIt
+          }
+        if (modified) JsonArray(newList) else element
+      }
+      else -> element
+    }
   }
 }

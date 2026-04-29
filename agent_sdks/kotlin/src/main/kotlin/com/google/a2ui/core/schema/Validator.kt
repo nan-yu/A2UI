@@ -44,6 +44,9 @@ constructor(
   private val catalog: A2uiCatalog,
   private val schemaMappings: Map<String, String> = emptyMap(),
 ) {
+  val version: A2uiVersion
+    get() = catalog.version
+
   private val validator: JsonSchema = buildValidator()
   private val mapper = ObjectMapper()
 
@@ -220,7 +223,7 @@ constructor(
         topologyValidator.validate(it)
       }
 
-      val recursionValidator = A2uiRecursionValidator()
+      val recursionValidator = A2uiRecursionValidator(catalog.version)
       recursionValidator.validate(message)
     }
   }
@@ -232,9 +235,10 @@ constructor(
 
       if (MSG_BEGIN_RENDERING in message) {
         val beginRendering = message[MSG_BEGIN_RENDERING] as? JsonObject
-        val msgSurfaceId = requireNotNull(beginRendering?.get("surfaceId")?.jsonPrimitive?.content) {
-          "surfaceId is required in beginRendering"
-        }
+        val msgSurfaceId =
+          requireNotNull(beginRendering?.get("surfaceId")?.jsonPrimitive?.content) {
+            "surfaceId is required in beginRendering"
+          }
         if (!surfaceRootIds.containsKey(msgSurfaceId)) {
           val rootElem = beginRendering?.get(ROOT)
           val rootId =
@@ -249,9 +253,10 @@ constructor(
 
       if (MSG_CREATE_SURFACE in message) {
         val createSurface = message[MSG_CREATE_SURFACE] as? JsonObject
-        val msgSurfaceId = requireNotNull(createSurface?.get("surfaceId")?.jsonPrimitive?.content) {
-          "surfaceId is required in createSurface"
-        }
+        val msgSurfaceId =
+          requireNotNull(createSurface?.get("surfaceId")?.jsonPrimitive?.content) {
+            "surfaceId is required in createSurface"
+          }
         surfaceRootIds.putIfAbsent(msgSurfaceId, ROOT)
       }
     }
@@ -553,7 +558,7 @@ constructor(
   }
 
   /** Validates JSON payload recursion depth and functional call depth. */
-  private class A2uiRecursionValidator {
+  private class A2uiRecursionValidator(private val version: A2uiVersion) {
     fun validate(data: JsonElement) = traverse(data, 0, 0)
 
     private fun traverse(item: JsonElement, globalDepth: Int, funcDepth: Int) {
@@ -567,7 +572,16 @@ constructor(
           (item[PATH] as? JsonPrimitive)
             ?.takeIf { it.isString }
             ?.let { pathElem ->
-              if (!pathElem.content.matches(JSON_POINTER_PATTERN)) {
+              val content = pathElem.content
+              val isValid =
+                if (version == A2uiVersion.VERSION_0_9) {
+                  val absolutePath = if (content.startsWith("/")) content else "/$content"
+                  absolutePath.matches(JSON_POINTER_PATTERN)
+                } else {
+                  content.matches(JSON_POINTER_PATTERN)
+                }
+
+              if (!isValid) {
                 throw IllegalArgumentException("Invalid JSON Pointer syntax: '${pathElem.content}'")
               }
             }

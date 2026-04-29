@@ -61,7 +61,13 @@ fun parseResponseToParts(text: String, validator: A2uiValidator? = null): List<R
       throw IllegalArgumentException("A2UI JSON part is empty.")
     }
 
-    val elements = PayloadFixer.parseAndFix(jsonStringCleaned)
+    val rawElements = PayloadFixer.parseAndFix(jsonStringCleaned)
+    val elements =
+      if (validator?.version == com.google.a2ui.core.schema.A2uiVersion.VERSION_0_8) {
+        rawElements.map { PayloadFixer.fixPathsForV08(it) }
+      } else {
+        rawElements
+      }
     elements.forEach { validator?.validate(it) }
 
     responseParts.add(ResponsePart(text = textPart, a2uiJson = elements))

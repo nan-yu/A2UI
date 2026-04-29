@@ -19,6 +19,9 @@ package com.google.a2ui.core.parser
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 class PayloadFixerTest {
 
@@ -87,5 +90,47 @@ class PayloadFixerTest {
     val input = "“smart” ‘quotes’"
     val expected = "\"smart\" 'quotes'"
     assertEquals(expected, PayloadFixer.normalizeSmartQuotes(input))
+  }
+
+  @Test
+  fun fixPathsForV08_prependsSlashToRelativePaths() {
+    val input =
+      """
+      {
+        "surfaceUpdate": {
+          "components": [
+            {
+              "id": "root",
+              "component": {
+                "Text": {
+                  "text": { "path": "some/relative/path" }
+                }
+              }
+            }
+          ]
+        }
+      }
+    """
+        .trimIndent()
+    val parsed = kotlinx.serialization.json.Json.parseToJsonElement(input)
+    val fixed = PayloadFixer.fixPathsForV08(parsed)
+    val expectedPath =
+      fixed.jsonObject["surfaceUpdate"]
+        ?.jsonObject
+        ?.get("components")
+        ?.jsonArray
+        ?.get(0)
+        ?.jsonObject
+        ?.get("component")
+        ?.jsonObject
+        ?.get("Text")
+        ?.jsonObject
+        ?.get("text")
+        ?.jsonObject
+        ?.get("path")
+        ?.jsonPrimitive
+        ?.content
+
+    assertEquals("/some/relative/path", expectedPath)
   }
 }

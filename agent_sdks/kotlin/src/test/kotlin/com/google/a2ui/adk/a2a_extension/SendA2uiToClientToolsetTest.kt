@@ -76,7 +76,8 @@ class SendA2uiToClientToolsetTest {
     val toolset = SendA2uiToClientToolset.create(true, dummyCatalog, "")
     val tool = toolset.getTools(mockContext).blockingFirst()
 
-    val a2uiJsonStr = """{"beginRendering": {"surfaceId": "dummy-surface", "root": {"component": "TestComp", "id": "1"}}}"""
+    val a2uiJsonStr =
+      """{"beginRendering": {"surfaceId": "dummy-surface", "root": {"component": "TestComp", "id": "1"}}}"""
 
     val args = mapOf("a2ui_json" to a2uiJsonStr)
     val result = tool.runAsync(args, mockToolContext).blockingGet()
