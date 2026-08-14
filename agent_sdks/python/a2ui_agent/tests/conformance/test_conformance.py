@@ -167,19 +167,10 @@ def assert_parts_match(actual_parts, expected_parts):
         assert actual.a2ui_json == expected.get("a2ui")
 
 
-SUPPORTED_SPEC_VERSIONS = {
-    "0.8",
-    "0.9",
-    "0.9.1",
-    "1.0",
-}
-
 SKIP_TEST_SUITES = {
     "core/catalog.yaml",
     "core/validator.yaml",
 }
-
-SKIP_TEST_NAMES = set()
 
 
 def get_conformance_cases(filename):
@@ -187,25 +178,7 @@ def get_conformance_cases(filename):
         return []
 
     cases = load_tests(filename)
-    filtered = []
-    for case in cases:
-        name = case.get("name")
-        catalog = (
-            case.get("catalog", {}) if isinstance(case.get("catalog"), dict) else {}
-        )
-        args = case.get("args", {}) if isinstance(case.get("args"), dict) else {}
-        raw_version = str(
-            case.get("protocol_version")
-            or catalog.get("version")
-            or args.get("version")
-            or "0.9"
-        )
-        version = raw_version.lstrip("v")
-
-        if version not in SUPPORTED_SPEC_VERSIONS or name in SKIP_TEST_NAMES:
-            continue
-        filtered.append((name, case))
-    return filtered
+    return [(case["name"], case) for case in cases]
 
 
 # --- Streaming Parser Conformance ---
