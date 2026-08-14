@@ -20,7 +20,7 @@
         "properties": {
           "version": {
             "type": "string",
-            "enum": ["0.8", "0.9", "1.0"],
+            "enum": ["0.8", "0.9", "0.9.1", "1.0"],
             "description": "Protocol version."
           },
           "s2c_schema": {
@@ -65,6 +65,30 @@
         },
         "required": ["version"]
       },
+      "catalogs": {
+        "type": "array",
+        "description": "List of catalog configurations for multi-catalog or processor tests.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "catalog_id": {"type": "string"},
+            "version": {
+              "type": "string",
+              "enum": ["0.8", "0.9", "0.9.1", "1.0"],
+              "description": "Protocol version of the catalog."
+            },
+            "catalog_schema": {"type": "object"},
+            "functions": {"type": "array"},
+            "theme_schema": {"type": "object"},
+            "components": {"type": "object"}
+          },
+          "required": ["version"]
+        }
+      },
+      "strict_mode": {
+        "type": "boolean",
+        "description": "Whether strict validation mode is enabled in the message processor."
+      },
       "action": {
         "type": "string",
         "description": "The action to perform.",
@@ -91,7 +115,11 @@
           "try_activate",
           "select_newest",
           "verify_cuttable_keys",
-          "accessibility_check"
+          "accessibility_check",
+          "process_messages",
+          "get_renderer_capabilities",
+          "get_renderer_data_model",
+          "resolve_path"
         ]
       }
     },
@@ -121,7 +149,11 @@
           {"$ref": "#/$defs/TryActivateTest"},
           {"$ref": "#/$defs/SelectNewestTest"},
           {"$ref": "#/$defs/VerifyCuttableKeysTest"},
-          {"$ref": "#/$defs/AccessibilityCheckTest"}
+          {"$ref": "#/$defs/AccessibilityCheckTest"},
+          {"$ref": "#/$defs/ProcessMessagesTest"},
+          {"$ref": "#/$defs/GetRendererCapabilitiesTest"},
+          {"$ref": "#/$defs/GetRendererDataModelTest"},
+          {"$ref": "#/$defs/ResolvePathTest"}
         ]
       }
     ]
@@ -522,6 +554,119 @@
           "required": ["category"]
         }
       ]
+    },
+    "ProcessMessagesTest": {
+      "type": "object",
+      "properties": {
+        "action": {"const": "process_messages"},
+        "strict_mode": {"type": "boolean"},
+        "catalogs": {
+          "type": "array",
+          "items": {"type": "object"}
+        },
+        "messages": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {"type": "object"}
+            },
+            {
+              "type": "object",
+              "properties": {
+                "messages": {
+                  "type": "array",
+                  "items": {"type": "object"}
+                }
+              },
+              "required": ["messages"]
+            }
+          ]
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "messages": {
+                "oneOf": [
+                  {"type": "array", "items": {"type": "object"}},
+                  {"type": "object"}
+                ]
+              },
+              "expect": {"type": "object"},
+              "expect_error": {"$ref": "#/$defs/ExpectError"}
+            },
+            "required": ["messages"]
+          }
+        },
+        "expect": {
+          "type": "object",
+          "properties": {
+            "surfaces": {"type": "object"}
+          }
+        },
+        "expect_error": {"$ref": "#/$defs/ExpectError"}
+      },
+      "required": ["action"]
+    },
+    "GetRendererCapabilitiesTest": {
+      "type": "object",
+      "properties": {
+        "action": {"const": "get_renderer_capabilities"},
+        "catalogs": {
+          "type": "array",
+          "items": {"type": "object"}
+        },
+        "args": {
+          "type": "object",
+          "properties": {
+            "include_inline_catalogs": {"type": "boolean"},
+            "version": {"type": "string"}
+          }
+        },
+        "expect": {"type": "object"}
+      },
+      "required": ["action", "expect"]
+    },
+    "GetRendererDataModelTest": {
+      "type": "object",
+      "properties": {
+        "action": {"const": "get_renderer_data_model"},
+        "catalogs": {
+          "type": "array",
+          "items": {"type": "object"}
+        },
+        "messages": {
+          "type": "array",
+          "items": {"type": "object"}
+        },
+        "args": {
+          "type": "object",
+          "properties": {
+            "version": {"type": "string"}
+          }
+        },
+        "expect": {
+          "type": ["object", "null"]
+        }
+      },
+      "required": ["action", "messages"]
+    },
+    "ResolvePathTest": {
+      "type": "object",
+      "properties": {
+        "action": {"const": "resolve_path"},
+        "args": {
+          "type": "object",
+          "properties": {
+            "path": {"type": "string"},
+            "context_path": {"type": "string"}
+          },
+          "required": ["path"]
+        },
+        "expect": {"type": "string"}
+      },
+      "required": ["action", "args", "expect"]
     }
   }
 }
