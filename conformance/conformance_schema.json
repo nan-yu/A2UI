@@ -66,9 +66,6 @@
         "messages": {
           "description": "A2UI message array or container object."
         },
-        "payload": {
-          "description": "Test payload data."
-        },
         "surface": {
           "type": "object",
           "description": "Surface state or configuration object."
@@ -223,9 +220,6 @@
       "properties": {
         "input": {
           "description": "Input for this step."
-        },
-        "payload": {
-          "description": "Payload for this step."
         },
         "messages": {
           "description": "Messages for this step."

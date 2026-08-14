@@ -32,24 +32,24 @@
   catalog_paths:
     - "specification/v0_8/json/standard_catalog_definition.json"
   steps:
-    - payload:
+    - messages:
         - beginRendering:
             surfaceId: test-id
             root: root
             styles:
               primaryColor: "#ff0000"
-    - payload:
+    - messages:
         - beginRendering:
             surfaceId: 123
             root: root
       expect_error: "123 is not of type 'string'"
-    - payload:
+    - messages:
         - beginRendering:
             surfaceId: id
             root: root
             styles: not-an-object
       expect_error: "'not-an-object' is not of type 'object'"
-    - payload:
+    - messages:
         - beginRendering:
             surfaceId: id
       expect_error: "'root' is a required property"
@@ -95,7 +95,7 @@
           - type
           - chartData
   steps:
-    - payload:
+    - messages:
         - beginRendering:
             surfaceId: s1
             root: root
@@ -120,7 +120,7 @@
                     type: pie
                     chartData:
                       path: /chart
-    - payload:
+    - messages:
         - surfaceUpdate:
             surfaceId: s1
             components:
@@ -131,7 +131,7 @@
                     chartData:
                       path: /chart
       expect_error: "'line' is not one of ['doughnut', 'pie']"
-    - payload:
+    - messages:
         - surfaceUpdate:
             surfaceId: s1
             components:
@@ -141,7 +141,7 @@
                     children:
                       explicitList: 123
       expect_error: "123 is not of type 'array'"
-    - payload:
+    - messages:
         - surfaceUpdate:
             surfaceId: s1
             components:
@@ -150,7 +150,7 @@
                   Canvas:
                     children: {}
       expect_error: "'explicitList' is a required property"
-    - payload:
+    - messages:
         - surfaceUpdate:
             surfaceId: s1
             components:
@@ -161,7 +161,7 @@
                       explicitList: []
                     extraProperty: should-fail
       expect_error: "Additional properties are not allowed"
-    - payload:
+    - messages:
         - surfaceUpdate:
             surfaceId: s1
             components:
@@ -182,7 +182,7 @@
   catalog_paths:
     - "specification/v0_9/catalogs/basic/catalog.json"
   steps:
-    - payload:
+    - messages:
         - version: "v0.9"
           createSurface:
             surfaceId: test-id
@@ -190,7 +190,7 @@
             theme:
               primaryColor: "#0000ff"
               iconUrl: "http://img"
-    - payload:
+    - messages:
         - createSurface:
             surfaceId: "123"
             catalogId: standard
@@ -199,7 +199,7 @@
         details:
           - path: "messages.0.version"
             code: "missing_field"
-    - payload:
+    - messages:
         - version: "v0.8"
           createSurface:
             surfaceId: "123"
@@ -209,7 +209,7 @@
         details:
           - path: "messages.0.version"
             code: "invalid_value"
-    - payload:
+    - messages:
         - version: "v0.9"
           createSurface:
             surfaceId: 123
@@ -219,7 +219,7 @@
         details:
           - path: "messages.0.createSurface.surfaceId"
             code: "type_mismatch"
-    - payload:
+    - messages:
         - version: "v0.9"
           createSurface:
             surfaceId: "123"
@@ -262,7 +262,7 @@
           - chartType
           - title
   steps:
-    - payload:
+    - messages:
         - version: "v0.9"
           createSurface:
             surfaceId: s1
@@ -283,7 +283,7 @@
                 component: Chart
                 chartType: pie
                 title: My Chart
-    - payload:
+    - messages:
         - version: "v0.9"
           updateComponents:
             surfaceId: s1
@@ -297,7 +297,7 @@
         details:
           - path: "chartType"
             code: "invalid_value"
-    - payload:
+    - messages:
         - version: "v0.9"
           updateComponents:
             surfaceId: s1
@@ -310,7 +310,7 @@
         details:
           - path: "children"
             code: "invalid_value"
-    - payload:
+    - messages:
         - version: "v0.9"
           updateComponents:
             surfaceId: s1
@@ -322,7 +322,7 @@
         details:
           - path: "children"
             code: "missing_field"
-    - payload:
+    - messages:
         - version: "v0.9"
           updateComponents:
             surfaceId: s1
@@ -346,7 +346,7 @@
   catalog_paths:
     - "specification/v1_0/catalogs/basic/catalog.json"
   steps:
-    - payload:
+    - messages:
         - version: "v1.0"
           createSurface:
             surfaceId: "s1"
@@ -358,17 +358,17 @@
                 text: "Inline Text"
             dataModel:
               counter: 100
-    - payload:
+    - messages:
         - version: "v1.0"
           createSurface:
             surfaceId: "s_nocat"
-    - payload:
+    - messages:
         - version: "v1.0"
           updateDataModel:
             surfaceId: "s1"
             path: "/user/token"
             value: null
-    - payload:
+    - messages:
         - createSurface:
             surfaceId: "s1"
       expect_error:
@@ -376,7 +376,7 @@
         details:
           - path: "messages.0.version"
             code: "missing_field"
-    - payload:
+    - messages:
         - version: "v0.9"
           createSurface:
             surfaceId: "s1"
@@ -385,7 +385,7 @@
         details:
           - path: "messages.0.version"
             code: "invalid_value"
-    - payload:
+    - messages:
         - version: "v1.0"
           createSurface:
             surfaceId: 123
@@ -426,7 +426,7 @@
         required:
           - component
   steps:
-    - payload:
+    - messages:
         - version: "v1.0"
           createSurface:
             surfaceId: s1
@@ -441,7 +441,7 @@
               - id: c1
                 component: Chart
                 chartType: doughnut
-    - payload:
+    - messages:
         - version: "v1.0"
           updateComponents:
             surfaceId: s1
@@ -454,7 +454,7 @@
         details:
           - path: "chartType"
             code: "invalid_value"
-    - payload:
+    - messages:
         - version: "v1.0"
           updateComponents:
             surfaceId: s1
@@ -466,7 +466,7 @@
         details:
           - path: "children"
             code: "missing_field"
-    - payload:
+    - messages:
         - version: "v1.0"
           updateComponents:
             surfaceId: s1
@@ -493,14 +493,14 @@
       required: ["primaryColor"]
       additionalProperties: false
   steps:
-    - payload:
+    - messages:
         - version: "v0.9"
           createSurface:
             surfaceId: "s1"
             catalogId: "theme_cat"
             theme:
               primaryColor: "#ff0000"
-    - payload:
+    - messages:
         - version: "v0.9"
           createSurface:
             surfaceId: "s1"

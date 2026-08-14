@@ -307,17 +307,18 @@ def test_validator_conformance(name, test_case):
     if steps is None and "validate" in test_case:
         steps = test_case["validate"]
 
-    if steps is None and "payload" in test_case:
+    if steps is None and ("messages" in test_case or "payload" in test_case):
         steps = [test_case]
 
     for step in steps:
         validator = A2uiValidator(catalog=catalog)
+        step_messages = step.get("messages") or step.get("payload")
         expect_error = step.get("expect_error") or test_case.get("expect_error")
         if expect_error:
             with assert_raises(expect_error):
-                validator.validate(step["payload"])
+                validator.validate(step_messages)
         else:
-            validator.validate(step["payload"])
+            validator.validate(step_messages)
 
 
 # --- Catalog Conformance ---
