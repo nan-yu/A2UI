@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://a2ui.org/conformance/conformance_schema.json",
   "title": "A2UI Conformance Test Suite Schema",
-  "description": "Generic JSON schema validating all A2UI conformance test suites across core, agent, and extensions domains.",
+  "description": "JSON schema validating all A2UI conformance test suites across core, agent, and extensions domains.",
   "type": "array",
   "items": {
     "type": "object",
@@ -34,15 +34,15 @@
         "description": "Target A2UI protocol version."
       },
       "catalog": {
-        "description": "Catalog configuration, schema object, or catalog file path string."
+        "$ref": "#/$defs/Catalog",
+        "description": "Inlined catalog definition object."
       },
       "catalogs": {
         "type": "array",
-        "description": "List of catalog configurations for multi-catalog or processor tests."
-      },
-      "catalog_id": {
-        "type": "string",
-        "description": "Identifier of the target catalog."
+        "items": {
+          "$ref": "#/$defs/Catalog"
+        },
+        "description": "List of catalog objects for multi-catalog or processor tests."
       },
       "catalog_path": {
         "type": "string",
@@ -55,22 +55,15 @@
         },
         "description": "List of file paths to catalog schema JSON files."
       },
+      "catalog_id": {
+        "type": "string",
+        "description": "Target catalog identifier."
+      },
       "catalog_configs": {
         "description": "Catalog configurations or options."
       },
-      "strict_mode": {
-        "type": "boolean",
-        "description": "Whether strict validation mode is enabled."
-      },
-      "disable_validation": {
-        "type": "boolean",
-        "description": "Whether validation is explicitly disabled for the test."
-      },
       "input": {
-        "description": "Primary input for single-step test execution."
-      },
-      "inputs": {
-        "description": "Alternative batch or multi-part inputs."
+        "description": "Primary input for parser and single-step execution tests."
       },
       "messages": {
         "description": "A2UI message array or container object."
@@ -157,6 +150,47 @@
     }
   },
   "$defs": {
+    "Catalog": {
+      "type": "object",
+      "properties": {
+        "catalog_id": {
+          "type": "string",
+          "description": "Identifier of the catalog."
+        },
+        "protocol_version": {
+          "type": "string",
+          "enum": [
+            "v0.8",
+            "v0.9",
+            "v0.9.1",
+            "v1.0"
+          ],
+          "description": "Protocol version supported by this catalog."
+        },
+        "components": {
+          "type": "object",
+          "description": "Map of component names to component schema definitions."
+        },
+        "functions": {
+          "description": "Function definitions or signatures.",
+          "oneOf": [
+            {
+              "type": "object"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "theme": {
+          "type": "object",
+          "description": "Theme property schema definition."
+        }
+      }
+    },
     "ExpectError": {
       "description": "Expected error specification (error message string, regex, or structured error object).",
       "oneOf": [
