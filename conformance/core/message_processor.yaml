@@ -268,13 +268,13 @@
   action: process_messages
   strict_mode: true
   catalogs:
-  - catalog_id: topo-cat
-    components:
-      Card:
-        type: object
-        properties:
-          child:
-            $ref: https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId
+    - catalog_id: topo-cat
+      components:
+        Card:
+          type: object
+          properties:
+            child:
+              $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
   messages:
     - version: "v0.9"
       createSurface:
@@ -296,16 +296,16 @@
   action: process_messages
   strict_mode: true
   catalogs:
-  - catalog_id: topo-cat
-    components:
-      Card:
-        type: object
-        properties:
-          child:
-            $ref: https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId
-        required:
-        - component
-        - child
+    - catalog_id: topo-cat
+      components:
+        Card:
+          type: object
+          properties:
+            child:
+              $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
+          required:
+            - component
+            - child
   messages:
     - version: "v0.9"
       createSurface:
@@ -330,16 +330,16 @@
   action: process_messages
   strict_mode: true
   catalogs:
-  - catalog_id: topo-cat
-    components:
-      Card:
-        type: object
-        properties:
-          child:
-            $ref: https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId
-        required:
-        - component
-        - child
+    - catalog_id: topo-cat
+      components:
+        Card:
+          type: object
+          properties:
+            child:
+              $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
+          required:
+            - component
+            - child
   messages:
     - version: "v0.9"
       createSurface:
@@ -367,16 +367,16 @@
   action: process_messages
   strict_mode: true
   catalogs:
-  - catalog_id: topo-cat
-    components:
-      Card:
-        type: object
-        properties:
-          child:
-            $ref: https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId
-        required:
-        - component
-        - child
+    - catalog_id: topo-cat
+      components:
+        Card:
+          type: object
+          properties:
+            child:
+              $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
+          required:
+            - component
+            - child
   messages:
     - version: "v0.9"
       createSurface:
@@ -398,16 +398,16 @@
   action: process_messages
   strict_mode: true
   catalogs:
-  - catalog_id: topo-cat
-    components:
-      Card:
-        type: object
-        properties:
-          child:
-            $ref: https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId
-        required:
-        - component
-        - child
+    - catalog_id: topo-cat
+      components:
+        Card:
+          type: object
+          properties:
+            child:
+              $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
+          required:
+            - component
+            - child
   messages:
     - version: "v0.9"
       createSurface:
@@ -429,24 +429,24 @@
   action: process_messages
   strict_mode: true
   catalogs:
-  - catalog_id: topo-cat
-    components:
-      Card:
-        type: object
-        properties:
-          child:
-            $ref: https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId
-        required:
-        - component
-        - child
-      Text:
-        type: object
-        properties:
-          text:
-            type: string
-        required:
-        - component
-        - text
+    - catalog_id: topo-cat
+      components:
+        Card:
+          type: object
+          properties:
+            child:
+              $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
+          required:
+            - component
+            - child
+        Text:
+          type: object
+          properties:
+            text:
+              type: string
+          required:
+            - component
+            - text
   messages:
     - version: "v0.9"
       createSurface:
@@ -473,19 +473,19 @@
   action: process_messages
   strict_mode: true
   catalogs:
-  - catalog_id: strict-cat
-    components:
-      Chart:
-        type: object
-        properties:
-          title:
-            type: string
-          value:
-            type: number
-        required:
-        - title
-        - value
-        additionalProperties: false
+    - catalog_id: strict-cat
+      components:
+        Chart:
+          type: object
+          properties:
+            title:
+              type: string
+            value:
+              type: number
+          required:
+            - title
+            - value
+          additionalProperties: false
   messages:
     - version: "v0.9"
       createSurface:
@@ -508,16 +508,16 @@
   action: process_messages
   strict_mode: true
   catalogs:
-  - catalog_id: strict-cat
-    components:
-      Button:
-        type: object
-        properties:
-          label:
-            type: string
-        required:
-        - label
-        additionalProperties: false
+    - catalog_id: strict-cat
+      components:
+        Button:
+          type: object
+          properties:
+            label:
+              type: string
+          required:
+            - label
+          additionalProperties: false
   messages:
     - version: "v0.9"
       createSurface:
@@ -542,14 +542,14 @@
   action: process_messages
   strict_mode: true
   catalogs:
-  - catalog_id: theme-cat
-    theme:
-      type: object
-      properties:
-        primaryColor:
-          type: string
-          pattern: ^#[0-9a-fA-F]{6}$
-      additionalProperties: false
+    - catalog_id: theme-cat
+      theme:
+        type: object
+        properties:
+          primaryColor:
+            type: string
+            pattern: "^#[0-9a-fA-F]{6}$"
+        additionalProperties: false
   messages:
     - version: "v0.9"
       createSurface:
@@ -814,8 +814,8 @@
   description: Tests generating v0.8 renderer capabilities structure.
   action: get_renderer_capabilities
   catalogs:
-  - catalog_id: cat-v08
-    protocol_version: v0.8
+    - catalog_id: cat-v08
+      protocol_version: "v0.8"
   args:
     include_inline_catalogs: false
     version: "v0.8"
@@ -849,8 +849,8 @@
   description: Tests generating v0.9 renderer capabilities with supportedCatalogIds.
   action: get_renderer_capabilities
   catalogs:
-  - catalog_id: cat-1
-  - catalog_id: cat-2
+    - catalog_id: cat-1
+    - catalog_id: cat-2
   args:
     include_inline_catalogs: false
     version: "v0.9"
@@ -864,16 +864,16 @@
   description: Tests generating inline catalogs with component schema envelopes.
   action: get_renderer_capabilities
   catalogs:
-  - catalog_id: cat-1
-    components:
-      Button:
-        type: object
-        properties:
-          label:
-            type: string
-            description: The button label
-        required:
-        - label
+    - catalog_id: cat-1
+      components:
+        Button:
+          type: object
+          properties:
+            label:
+              type: string
+              description: The button label
+          required:
+            - label
   args:
     include_inline_catalogs: true
     version: "v0.9"
@@ -901,14 +901,14 @@
   description: "Tests transforming REF: tagged descriptions into valid JSON Schema $ref nodes."
   action: get_renderer_capabilities
   catalogs:
-  - catalog_id: cat-ref
-    components:
-      Custom:
-        type: object
-        properties:
-          title:
-            type: string
-            description: REF:common_types.json#/$defs/DynamicString|The title
+    - catalog_id: cat-ref
+      components:
+        Custom:
+          type: object
+          properties:
+            title:
+              type: string
+              description: "REF:common_types.json#/$defs/DynamicString|The title"
   args:
     include_inline_catalogs: true
     version: "v0.9"
@@ -933,34 +933,34 @@
   description: Tests generating inline catalogs including function definitions and theme schema.
   action: get_renderer_capabilities
   catalogs:
-  - catalog_id: cat-full
-    components:
-      Button:
-        type: object
-        properties:
-          label:
-            type: string
-    functions:
-      add:
-        returnType: number
-        parameters:
+    - catalog_id: cat-full
+      components:
+        Button:
           type: object
           properties:
-            a:
-              type: number
-              description: First number
-            b:
-              type: number
-              description: Second number
-          required:
-          - a
-          - b
-    theme:
-      type: object
-      properties:
-        primaryColor:
-          $ref: common_types.json#/$defs/Color
-          description: The main color
+            label:
+              type: string
+      functions:
+        add:
+          returnType: number
+          parameters:
+            type: object
+            properties:
+              a:
+                type: number
+                description: First number
+              b:
+                type: number
+                description: Second number
+            required:
+              - a
+              - b
+      theme:
+        type: object
+        properties:
+          primaryColor:
+            $ref: "common_types.json#/$defs/Color"
+            description: The main color
   args:
     include_inline_catalogs: true
     version: "v0.9"
@@ -1003,16 +1003,16 @@
   description: Tests generating capabilities for multiple registered catalogs in v0.9.
   action: get_renderer_capabilities
   catalogs:
-  - catalog_id: cat-1
-    components:
-      C1:
+    - catalog_id: cat-1
+      components:
+        C1:
+          type: object
+    - catalog_id: cat-2
+      theme:
         type: object
-  - catalog_id: cat-2
-    theme:
-      type: object
-      properties:
-        color:
-          type: string
+        properties:
+          color:
+            type: string
   args:
     include_inline_catalogs: true
     version: "v0.9"
@@ -1114,10 +1114,10 @@
   description: Tests that individual components in v1.0 can specify a catalogId override different from the surface default.
   action: process_messages
   catalogs:
-  - catalog_id: main-catalog
-    protocol_version: v1.0
-  - catalog_id: charts-catalog
-    protocol_version: v1.0
+    - catalog_id: main-catalog
+      protocol_version: "v1.0"
+    - catalog_id: charts-catalog
+      protocol_version: "v1.0"
   messages:
     - version: "v1.0"
       createSurface:
@@ -1177,8 +1177,8 @@
   description: Tests generating v1.0 renderer capabilities structure.
   action: get_renderer_capabilities
   catalogs:
-  - catalog_id: cat-v10
-    protocol_version: v1.0
+    - catalog_id: cat-v10
+      protocol_version: "v1.0"
   args:
     include_inline_catalogs: false
     version: "v1.0"
@@ -1186,3 +1186,4 @@
     v1.0:
       supportedCatalogIds:
         - "cat-v10"
+

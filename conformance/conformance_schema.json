@@ -10,10 +10,7 @@
   "$defs": {
     "TestCase": {
       "type": "object",
-      "required": [
-        "name",
-        "action"
-      ],
+      "required": ["name", "action"],
       "properties": {
         "name": {
           "type": "string",
@@ -125,12 +122,7 @@
     },
     "ProtocolVersion": {
       "type": "string",
-      "enum": [
-        "v0.8",
-        "v0.9",
-        "v0.9.1",
-        "v1.0"
-      ],
+      "enum": ["v0.8", "v0.9", "v0.9.1", "v1.0"],
       "description": "Supported A2UI protocol versions."
     },
     "Catalog": {
@@ -199,10 +191,7 @@
     },
     "CatalogConfig": {
       "type": "object",
-      "required": [
-        "name",
-        "path"
-      ],
+      "required": ["name", "path"],
       "properties": {
         "name": {
           "type": "string",
