@@ -440,7 +440,11 @@ def test_schema_manager_conformance(name, test_case):
         )
         selected = direct_json_format.get_selected_catalog()
         expected = test_case["expect"]
-        if "components" in expected or "catalogId" in expected or "catalog_id" in expected:
+        if (
+            "components" in expected
+            or "catalogId" in expected
+            or "catalog_id" in expected
+        ):
             assert selected.catalog_schema == expected
         elif "catalog_schema" in expected:
             assert selected.catalog_schema == expected["catalog_schema"]

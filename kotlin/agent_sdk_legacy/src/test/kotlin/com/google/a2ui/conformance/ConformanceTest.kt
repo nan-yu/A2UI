@@ -162,7 +162,11 @@ class ConformanceTest {
       val stepsList =
         (case[ConformanceTestHelper.KEY_STEPS] as? List<*>)
           ?: (case["validate"] as? List<*>)
-          ?: if (case.containsKey("messages") || case.containsKey(ConformanceTestHelper.KEY_PAYLOAD)) listOf(case) else null
+          ?: if (
+            case.containsKey("messages") || case.containsKey(ConformanceTestHelper.KEY_PAYLOAD)
+          )
+            listOf(case)
+          else null
 
       if (stepsList == null) {
         throw IllegalArgumentException("No steps or messages found in test case: $name")
@@ -767,11 +771,7 @@ class ConformanceTest {
     private const val KEY_ALLOWED_COMPONENTS = "allowed_components"
     private const val KEY_CATALOG_SCHEMA = "catalog_schema"
 
-    private val SKIP_TEST_SUITES =
-      setOf(
-        "core/catalog.yaml",
-        "core/validator.yaml",
-      )
+    private val SKIP_TEST_SUITES = setOf("core/catalog.yaml", "core/validator.yaml")
 
     private val SKIP_TEST_NAMES =
       setOf(
