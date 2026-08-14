@@ -134,9 +134,6 @@ def setup_catalog(catalog_config):
         common_types_schema = {}
 
     custom_cuttable_keys = catalog_config.get("custom_cuttable_keys")
-    experiments = catalog_config.get("experiments")
-    experiments_set = frozenset(experiments) if experiments is not None else None
-
     return A2uiCatalog(
         version=version,
         name=catalog_config.get("name", "test_catalog"),
@@ -146,7 +143,6 @@ def setup_catalog(catalog_config):
         custom_cuttable_keys=frozenset(custom_cuttable_keys)
         if custom_cuttable_keys is not None
         else None,
-        experiments=experiments_set,
     )
 
 
