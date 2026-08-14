@@ -25,7 +25,7 @@
   description: Tests parsing a v0.8 catalog with styles, verifying backward-compatible mapping into theme and components.
   action: from_json
   protocol_version: "v0.8"
-  catalogId: "https://a2ui.org/catalogs/v08/basic"
+  catalog_id: "https://a2ui.org/catalogs/v08/basic"
   catalog:
     components:
       Text:
@@ -387,7 +387,7 @@
 - name: test_catalog_from_json_override_catalog_id
   description: Tests overriding catalogId during Catalog.from_json.
   action: from_json
-  catalogId: "https://a2ui.org/catalogs/overridden"
+  catalog_id: "https://a2ui.org/catalogs/overridden"
   catalog:
     catalogId: "https://a2ui.org/catalogs/original"
     components:
