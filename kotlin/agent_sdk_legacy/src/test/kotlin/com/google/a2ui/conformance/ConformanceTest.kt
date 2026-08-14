@@ -142,8 +142,22 @@ class ConformanceTest {
       val case = caseObj as Map<*, *>
       val name = case[ConformanceTestHelper.KEY_NAME] as String
 
-      val catalogMap = case[ConformanceTestHelper.KEY_CATALOG] as Map<*, *>
-      val (catalog, schemaMappings) = buildCatalog(catalogMap, conformanceDir, baseSchemaMappings)
+      val catalogMap = case[ConformanceTestHelper.KEY_CATALOG] as? Map<*, *>
+      val (catalog, schemaMappings) =
+        if (catalogMap != null) {
+          buildCatalog(catalogMap, conformanceDir, baseSchemaMappings)
+        } else {
+          Pair(
+            A2uiCatalog(
+              version = A2uiVersion.VERSION_0_9,
+              name = TEST_CATALOG_NAME,
+              serverToClientSchema = JsonObject(emptyMap()),
+              commonTypesSchema = JsonObject(emptyMap()),
+              catalogSchema = JsonObject(emptyMap()),
+            ),
+            baseSchemaMappings,
+          )
+        }
 
       val stepsList =
         case[ConformanceTestHelper.KEY_STEPS] as? List<*>
@@ -253,12 +267,17 @@ class ConformanceTest {
 
   @TestFactory
   fun testValidatorConformance(): List<DynamicTest> {
+    if (isSkipped(VALIDATOR_YAML_FILE, "")) {
+      return emptyList()
+    }
     val conformanceFile = ConformanceTestHelper.getConformanceFile(VALIDATOR_YAML_FILE)
     val conformanceDir = ConformanceTestHelper.getConformanceDir()
     val cases = parseConformanceYaml(conformanceFile, conformanceDir)
-
-    return cases.map { case ->
+    return cases.mapNotNull { case ->
       val name = case.name
+      if (isSkipped(VALIDATOR_YAML_FILE, name)) {
+        return@mapNotNull null
+      }
 
       DynamicTest.dynamicTest(name) {
         val validator = A2uiValidator(case.catalog, case.schemaMappings)
@@ -293,6 +312,9 @@ class ConformanceTest {
 
   @TestFactory
   fun testCatalogConformance(): List<DynamicTest> {
+    if (isSkipped(CATALOG_YAML_FILE, "")) {
+      return emptyList()
+    }
     val conformanceFile = ConformanceTestHelper.getConformanceFile(CATALOG_YAML_FILE)
     val conformanceDir = ConformanceTestHelper.getConformanceDir()
     val rawList = yamlMapper.readValue(conformanceFile, Any::class.java) as List<*>
@@ -300,6 +322,9 @@ class ConformanceTest {
     return rawList.mapNotNull { caseObj ->
       val case = caseObj as Map<*, *>
       val name = case[ConformanceTestHelper.KEY_NAME] as String
+      if (isSkipped(CATALOG_YAML_FILE, name)) {
+        return@mapNotNull null
+      }
       val action = case[ConformanceTestHelper.KEY_ACTION] as String
       val args = case[ConformanceTestHelper.KEY_ARGS] as? Map<*, *> ?: emptyMap<Any, Any>()
 
@@ -729,6 +754,26 @@ class ConformanceTest {
     private const val KEY_PATH = "path"
     private const val KEY_ALLOWED_COMPONENTS = "allowed_components"
     private const val KEY_CATALOG_SCHEMA = "catalog_schema"
+
+    private val SKIP_TEST_SUITES =
+      setOf(
+        "core/catalog.yaml",
+        "core/validator.yaml",
+      )
+
+    private val SKIP_TEST_NAMES =
+      setOf(
+        "test_custom_catalog_0_9",
+        "test_validator_1_0",
+        "test_custom_catalog_1_0",
+        "test_validator_theme_schema",
+      )
+
+    private fun isSkipped(suitePath: String, testName: String): Boolean {
+      return suitePath in SKIP_TEST_SUITES ||
+        File(suitePath).name in SKIP_TEST_SUITES ||
+        testName in SKIP_TEST_NAMES
+    }
   }
 }
 

@@ -15,75 +15,77 @@
         "description": "Optional description of what the test verifies."
       },
       "catalog": {
-        "type": "object",
-        "description": "Catalog configuration for the test.",
-        "properties": {
-          "version": {
-            "type": "string",
-            "enum": ["0.8", "0.9", "0.9.1", "1.0"],
-            "description": "Protocol version."
+        "description": "Catalog configuration for the test (CatalogModel, schema object, or schema path string).",
+        "anyOf": [
+          {"type": "string"},
+          {"$ref": "#/$defs/CatalogModel"},
+          {
+            "type": "object",
+            "properties": {
+              "catalogId": {"type": "string"},
+              "components": {"type": "object"},
+              "functions": {"type": "object"},
+              "theme": {"type": "object"},
+              "styles": {"type": "object"},
+              "$defs": {"type": "object"}
+            }
           },
-          "s2c_schema": {
-            "description": "Path to simplified schema file or inlined schema object. Defaults to null if not passed.",
-            "oneOf": [
-              {
+          {
+            "type": "object",
+            "properties": {
+              "version": {
                 "type": "string",
-                "description": "Path to simplified schema file."
+                "enum": ["0.8", "0.9", "0.9.1", "1.0"],
+                "description": "Protocol version."
               },
-              {
-                "type": "object",
-                "description": "Inlined schema object."
-              }
-            ]
-          },
-          "catalog_schema": {
-            "description": "Path to catalog file or inlined catalog object. Defaults to an empty object if not passed.",
-            "oneOf": [
-              {
-                "type": "string",
-                "description": "Path to catalog file."
+              "s2c_schema": {
+                "description": "Path to simplified schema file or inlined schema object. Defaults to null if not passed.",
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "description": "Path to simplified schema file."
+                  },
+                  {
+                    "type": "object",
+                    "description": "Inlined schema object."
+                  }
+                ]
               },
-              {
-                "type": "object",
-                "description": "Inlined catalog object."
-              }
-            ]
-          },
-          "common_types_schema": {
-            "description": "Path to common types schema file or inlined common types schema object. Defaults to an empty object if not passed.",
-            "oneOf": [
-              {
-                "type": "string",
-                "description": "Path to common types schema file."
+              "catalog_schema": {
+                "description": "Path to catalog file or inlined catalog object. Defaults to an empty object if not passed.",
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "description": "Path to catalog file."
+                  },
+                  {
+                    "type": "object",
+                    "description": "Inlined catalog object."
+                  }
+                ]
               },
-              {
-                "type": "object",
-                "description": "Inlined common types schema object."
+              "common_types_schema": {
+                "description": "Path to common types schema file or inlined common types schema object. Defaults to an empty object if not passed.",
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "description": "Path to common types schema file."
+                  },
+                  {
+                    "type": "object",
+                    "description": "Inlined common types schema object."
+                  }
+                ]
               }
-            ]
+            },
+            "required": ["version"]
           }
-        },
-        "required": ["version"]
+        ]
       },
       "catalogs": {
         "type": "array",
         "description": "List of catalog configurations for multi-catalog or processor tests.",
-        "items": {
-          "type": "object",
-          "properties": {
-            "catalog_id": {"type": "string"},
-            "version": {
-              "type": "string",
-              "enum": ["0.8", "0.9", "0.9.1", "1.0"],
-              "description": "Protocol version of the catalog."
-            },
-            "catalog_schema": {"type": "object"},
-            "functions": {"type": "array"},
-            "theme_schema": {"type": "object"},
-            "components": {"type": "object"}
-          },
-          "required": ["version"]
-        }
+        "items": {"$ref": "#/$defs/CatalogModel"}
       },
       "strict_mode": {
         "type": "boolean",
@@ -119,7 +121,10 @@
           "process_messages",
           "get_renderer_capabilities",
           "get_renderer_data_model",
-          "resolve_path"
+          "resolve_path",
+          "from_json",
+          "catalog_schema",
+          "to_json"
         ]
       }
     },
@@ -153,7 +158,9 @@
           {"$ref": "#/$defs/ProcessMessagesTest"},
           {"$ref": "#/$defs/GetRendererCapabilitiesTest"},
           {"$ref": "#/$defs/GetRendererDataModelTest"},
-          {"$ref": "#/$defs/ResolvePathTest"}
+          {"$ref": "#/$defs/ResolvePathTest"},
+          {"$ref": "#/$defs/FromJsonTest"},
+          {"$ref": "#/$defs/CatalogSchemaTest"}
         ]
       }
     ]
@@ -210,7 +217,34 @@
     "ValidateTest": {
       "type": "object",
       "properties": {
-        "action": {"const": "validate"}
+        "action": {"const": "validate"},
+        "protocol_version": {
+          "type": "string",
+          "enum": ["0.8", "0.9", "0.9.1", "1.0", "v0.8", "v0.9", "v0.9.1", "v1.0"]
+        },
+        "catalog": {
+          "anyOf": [
+            {"$ref": "#/$defs/CatalogModel"},
+            {"type": "object"}
+          ]
+        },
+        "catalog_path": {
+          "type": "string",
+          "description": "File path to catalog schema JSON."
+        },
+        "catalogs": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {"$ref": "#/$defs/CatalogModel"},
+              {"type": "object"}
+            ]
+          }
+        },
+        "catalog_paths": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
       },
       "required": ["action"],
       "oneOf": [
@@ -560,9 +594,15 @@
       "properties": {
         "action": {"const": "process_messages"},
         "strict_mode": {"type": "boolean"},
+        "catalog": {"$ref": "#/$defs/CatalogModel"},
+        "catalog_path": {"type": "string"},
         "catalogs": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {"$ref": "#/$defs/CatalogModel"}
+        },
+        "catalog_paths": {
+          "type": "array",
+          "items": {"type": "string"}
         },
         "messages": {
           "oneOf": [
@@ -613,9 +653,15 @@
       "type": "object",
       "properties": {
         "action": {"const": "get_renderer_capabilities"},
+        "catalog": {"$ref": "#/$defs/CatalogModel"},
+        "catalog_path": {"type": "string"},
         "catalogs": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {"$ref": "#/$defs/CatalogModel"}
+        },
+        "catalog_paths": {
+          "type": "array",
+          "items": {"type": "string"}
         },
         "args": {
           "type": "object",
@@ -632,9 +678,15 @@
       "type": "object",
       "properties": {
         "action": {"const": "get_renderer_data_model"},
+        "catalog": {"$ref": "#/$defs/CatalogModel"},
+        "catalog_path": {"type": "string"},
         "catalogs": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {"$ref": "#/$defs/CatalogModel"}
+        },
+        "catalog_paths": {
+          "type": "array",
+          "items": {"type": "string"}
         },
         "messages": {
           "type": "array",
@@ -667,6 +719,92 @@
         "expect": {"type": "string"}
       },
       "required": ["action", "args", "expect"]
+    },
+    "CatalogExpect": {
+      "type": "object",
+      "properties": {
+        "catalog_id": {"type": "string"},
+        "catalogId": {"type": "string"},
+        "protocol_version": {"type": "string"},
+        "protocolVersion": {"type": "string"},
+        "components": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "functions": {
+          "oneOf": [
+            {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "theme": {"type": "object"},
+        "styles": {"type": "object"},
+        "$defs": {"type": "object"}
+      }
+    },
+    "CatalogModel": {
+      "type": "object",
+      "properties": {
+        "catalog_id": {"type": "string"},
+        "protocol_version": {
+          "type": "string",
+          "enum": ["0.8", "0.9", "0.9.1", "1.0", "v0.8", "v0.9", "v0.9.1", "v1.0"]
+        },
+        "components": {"type": "object"},
+        "functions": {"type": "object"},
+        "theme": {"type": "object"}
+      },
+      "required": ["catalog_id"]
+    },
+    "FromJsonTest": {
+      "type": "object",
+      "properties": {
+        "action": {"const": "from_json"},
+        "protocol_version": {
+          "type": "string",
+          "enum": ["0.8", "0.9", "0.9.1", "1.0", "v0.8", "v0.9", "v0.9.1", "v1.0"]
+        },
+        "catalog_id": {"type": "string"},
+        "catalog": {"type": "object"},
+        "catalog_schema": {"type": "object"},
+        "catalog_json": {"type": "object"},
+        "expect": {"$ref": "#/$defs/CatalogExpect"},
+        "expect_error": {"$ref": "#/$defs/ExpectError"}
+      },
+      "required": ["action", "catalog"]
+    },
+    "CatalogSchemaTest": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": ["catalog_schema", "to_json"]
+        },
+        "protocol_version": {
+          "type": "string",
+          "enum": ["v0.8", "v0.9", "v0.9.1", "v1.0", "0.8", "0.9", "0.9.1", "1.0"]
+        },
+        "catalog": {
+          "anyOf": [
+            {"$ref": "#/$defs/CatalogModel"},
+            {"type": "object"}
+          ]
+        },
+        "expect": {"$ref": "#/$defs/CatalogExpect"},
+        "expect_error": {"$ref": "#/$defs/ExpectError"}
+      },
+      "required": ["action", "catalog", "expect"]
     }
   }
 }

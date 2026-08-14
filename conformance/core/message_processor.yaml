@@ -24,11 +24,8 @@
 - name: test_create_surface_basic
   description: Tests creating a surface with catalogId and theme, verifying sendDataModel defaults to false.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -47,11 +44,8 @@
 - name: test_create_surface_send_data_model_enabled
   description: Tests creating a surface with sendDataModel explicitly enabled.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -67,11 +61,8 @@
 - name: test_create_surface_duplicate_error
   description: Tests that creating a surface with an already existing surfaceId raises an IntegrityError.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -88,11 +79,8 @@
 - name: test_create_surface_unknown_catalog_error
   description: Tests that creating a surface referencing an unregistered catalogId raises a CatalogError.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -105,11 +93,8 @@
 - name: test_delete_surface_basic
   description: Tests deleting an active surface by surfaceId, cleanly removing it from state.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -128,11 +113,8 @@
 - name: test_update_components_add_and_query
   description: Tests adding multiple components to an active surface and querying their properties.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -162,11 +144,8 @@
 - name: test_update_components_modify_existing_properties
   description: Tests updating the properties of an existing component on a surface.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -197,11 +176,8 @@
 - name: test_update_components_recreate_on_type_change
   description: Tests that changing a component's type recreates the component model and clears previous properties.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -232,11 +208,8 @@
 - name: test_update_components_unknown_surface_error
   description: Tests that updating components on a non-existent surface raises an IntegrityError.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       updateComponents:
@@ -251,11 +224,8 @@
 - name: test_update_components_missing_id_error
   description: Tests that component entries missing an 'id' property raise a validation error.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -274,11 +244,8 @@
 - name: test_update_components_create_without_type_error
   description: Tests that creating a brand new component without a component type name raises a validation error.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -301,16 +268,13 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: "topo-cat"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "topo-cat"
-        components:
-          Card:
-            type: "object"
-            properties:
-              child:
-                $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
+  - catalog_id: topo-cat
+    components:
+      Card:
+        type: object
+        properties:
+          child:
+            $ref: https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId
   messages:
     - version: "v0.9"
       createSurface:
@@ -332,17 +296,16 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: "topo-cat"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "topo-cat"
-        components:
-          Card:
-            type: "object"
-            properties:
-              child:
-                $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
-            required: ["component", "child"]
+  - catalog_id: topo-cat
+    components:
+      Card:
+        type: object
+        properties:
+          child:
+            $ref: https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId
+        required:
+        - component
+        - child
   messages:
     - version: "v0.9"
       createSurface:
@@ -367,17 +330,16 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: "topo-cat"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "topo-cat"
-        components:
-          Card:
-            type: "object"
-            properties:
-              child:
-                $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
-            required: ["component", "child"]
+  - catalog_id: topo-cat
+    components:
+      Card:
+        type: object
+        properties:
+          child:
+            $ref: https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId
+        required:
+        - component
+        - child
   messages:
     - version: "v0.9"
       createSurface:
@@ -405,17 +367,16 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: "topo-cat"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "topo-cat"
-        components:
-          Card:
-            type: "object"
-            properties:
-              child:
-                $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
-            required: ["component", "child"]
+  - catalog_id: topo-cat
+    components:
+      Card:
+        type: object
+        properties:
+          child:
+            $ref: https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId
+        required:
+        - component
+        - child
   messages:
     - version: "v0.9"
       createSurface:
@@ -437,17 +398,16 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: "topo-cat"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "topo-cat"
-        components:
-          Card:
-            type: "object"
-            properties:
-              child:
-                $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
-            required: ["component", "child"]
+  - catalog_id: topo-cat
+    components:
+      Card:
+        type: object
+        properties:
+          child:
+            $ref: https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId
+        required:
+        - component
+        - child
   messages:
     - version: "v0.9"
       createSurface:
@@ -469,23 +429,24 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: "topo-cat"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "topo-cat"
-        components:
-          Card:
-            type: "object"
-            properties:
-              child:
-                $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
-            required: ["component", "child"]
-          Text:
-            type: "object"
-            properties:
-              text:
-                type: "string"
-            required: ["component", "text"]
+  - catalog_id: topo-cat
+    components:
+      Card:
+        type: object
+        properties:
+          child:
+            $ref: https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId
+        required:
+        - component
+        - child
+      Text:
+        type: object
+        properties:
+          text:
+            type: string
+        required:
+        - component
+        - text
   messages:
     - version: "v0.9"
       createSurface:
@@ -512,20 +473,19 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: "strict-cat"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "strict-cat"
-        components:
-          Chart:
-            type: "object"
-            properties:
-              title:
-                type: "string"
-              value:
-                type: "number"
-            required: ["title", "value"]
-            additionalProperties: false
+  - catalog_id: strict-cat
+    components:
+      Chart:
+        type: object
+        properties:
+          title:
+            type: string
+          value:
+            type: number
+        required:
+        - title
+        - value
+        additionalProperties: false
   messages:
     - version: "v0.9"
       createSurface:
@@ -548,18 +508,16 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: "strict-cat"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "strict-cat"
-        components:
-          Button:
-            type: "object"
-            properties:
-              label:
-                type: "string"
-            required: ["label"]
-            additionalProperties: false
+  - catalog_id: strict-cat
+    components:
+      Button:
+        type: object
+        properties:
+          label:
+            type: string
+        required:
+        - label
+        additionalProperties: false
   messages:
     - version: "v0.9"
       createSurface:
@@ -584,17 +542,14 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: "theme-cat"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "theme-cat"
-      theme_schema:
-        type: "object"
-        properties:
-          primaryColor:
-            type: "string"
-            pattern: "^#[0-9a-fA-F]{6}$"
-        additionalProperties: false
+  - catalog_id: theme-cat
+    theme:
+      type: object
+      properties:
+        primaryColor:
+          type: string
+          pattern: ^#[0-9a-fA-F]{6}$
+      additionalProperties: false
   messages:
     - version: "v0.9"
       createSurface:
@@ -611,11 +566,8 @@
 - name: test_update_data_model_basic
   description: Tests updating the data model at root and nested JSON pointer paths.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -636,11 +588,8 @@
 - name: test_update_data_model_unknown_surface_error
   description: Tests that updating data on a non-existent surface raises an IntegrityError.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       updateDataModel:
@@ -654,11 +603,8 @@
 - name: test_get_renderer_data_model_filtering
   description: Tests that getRendererDataModel filters out surfaces where sendDataModel is false.
   action: get_renderer_data_model
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -691,11 +637,8 @@
 - name: test_get_renderer_data_model_empty_when_no_surfaces_enabled
   description: Tests that getRendererDataModel returns null/undefined when no active surfaces have sendDataModel enabled.
   action: get_renderer_data_model
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -749,11 +692,8 @@
 - name: test_message_multiple_conflicting_update_types_error
   description: Tests that a message containing multiple conflicting update types raises a validation error.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -768,11 +708,8 @@
 - name: test_process_messages_wrapper_object
   description: "Tests processing messages wrapped inside a { messages: [...] } container object."
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "test-catalog"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     messages:
       - version: "v0.9"
@@ -807,11 +744,9 @@
 - name: test_v08_begin_rendering_styles_mapping
   description: Tests that v0.8 VersionAdapter correctly extracts styles and root component from beginRendering.
   action: process_messages
-  catalogs:
-    - catalog_id: "v08-cat"
-      version: "0.8"
-      catalog_schema:
-        catalogId: "v08-cat"
+  protocol_version: "v0.8"
+  catalog_paths:
+    - "specification/v0_8/json/standard_catalog_definition.json"
   messages:
     - beginRendering:
         surfaceId: "s_v08"
@@ -829,11 +764,9 @@
 - name: test_v08_surface_update_components
   description: Tests that v0.8 surfaceUpdate with nested component objects is properly adapted into ComponentModels.
   action: process_messages
-  catalogs:
-    - catalog_id: "v08-cat"
-      version: "0.8"
-      catalog_schema:
-        catalogId: "v08-cat"
+  protocol_version: "v0.8"
+  catalog_paths:
+    - "specification/v0_8/json/standard_catalog_definition.json"
   messages:
     - beginRendering:
         surfaceId: "s_v08"
@@ -858,11 +791,9 @@
 - name: test_v08_data_model_update
   description: Tests that v0.8 dataModelUpdate with typed contents entries is properly adapted into the surface DataStore.
   action: process_messages
-  catalogs:
-    - catalog_id: "v08-cat"
-      version: "0.8"
-      catalog_schema:
-        catalogId: "v08-cat"
+  protocol_version: "v0.8"
+  catalog_paths:
+    - "specification/v0_8/json/standard_catalog_definition.json"
   messages:
     - beginRendering:
         surfaceId: "s_v08"
@@ -883,10 +814,8 @@
   description: Tests generating v0.8 renderer capabilities structure.
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: "cat-v08"
-      version: "0.8"
-      catalog_schema:
-        catalogId: "cat-v08"
+  - catalog_id: cat-v08
+    protocol_version: v0.8
   args:
     include_inline_catalogs: false
     version: "v0.8"
@@ -900,11 +829,8 @@
 - name: test_v09_create_surface_basic
   description: Tests v0.9 surface creation with standard theme object.
   action: process_messages
-  catalogs:
-    - catalog_id: "v09-cat"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "v09-cat"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   messages:
     - version: "v0.9"
       createSurface:
@@ -923,14 +849,8 @@
   description: Tests generating v0.9 renderer capabilities with supportedCatalogIds.
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: "cat-1"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "cat-1"
-    - catalog_id: "cat-2"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "cat-2"
+  - catalog_id: cat-1
+  - catalog_id: cat-2
   args:
     include_inline_catalogs: false
     version: "v0.9"
@@ -944,18 +864,16 @@
   description: Tests generating inline catalogs with component schema envelopes.
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: "cat-1"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "cat-1"
-        components:
-          Button:
-            type: "object"
-            properties:
-              label:
-                type: "string"
-                description: "The button label"
-            required: ["label"]
+  - catalog_id: cat-1
+    components:
+      Button:
+        type: object
+        properties:
+          label:
+            type: string
+            description: The button label
+        required:
+        - label
   args:
     include_inline_catalogs: true
     version: "v0.9"
@@ -983,17 +901,14 @@
   description: "Tests transforming REF: tagged descriptions into valid JSON Schema $ref nodes."
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: "cat-ref"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "cat-ref"
-        components:
-          Custom:
-            type: "object"
-            properties:
-              title:
-                type: "string"
-                description: "REF:common_types.json#/$defs/DynamicString|The title"
+  - catalog_id: cat-ref
+    components:
+      Custom:
+        type: object
+        properties:
+          title:
+            type: string
+            description: REF:common_types.json#/$defs/DynamicString|The title
   args:
     include_inline_catalogs: true
     version: "v0.9"
@@ -1018,35 +933,34 @@
   description: Tests generating inline catalogs including function definitions and theme schema.
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: "cat-full"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "cat-full"
-        components:
-          Button:
-            type: "object"
-            properties:
-              label:
-                type: "string"
-      functions:
-        - name: "add"
-          returnType: "number"
-          schema:
-            type: "object"
-            properties:
-              a:
-                type: "number"
-                description: "First number"
-              b:
-                type: "number"
-                description: "Second number"
-            required: ["a", "b"]
-      theme_schema:
-        type: "object"
+  - catalog_id: cat-full
+    components:
+      Button:
+        type: object
         properties:
-          primaryColor:
-            $ref: "common_types.json#/$defs/Color"
-            description: "The main color"
+          label:
+            type: string
+    functions:
+      add:
+        returnType: number
+        parameters:
+          type: object
+          properties:
+            a:
+              type: number
+              description: First number
+            b:
+              type: number
+              description: Second number
+          required:
+          - a
+          - b
+    theme:
+      type: object
+      properties:
+        primaryColor:
+          $ref: common_types.json#/$defs/Color
+          description: The main color
   args:
     include_inline_catalogs: true
     version: "v0.9"
@@ -1089,22 +1003,16 @@
   description: Tests generating capabilities for multiple registered catalogs in v0.9.
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: "cat-1"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "cat-1"
-        components:
-          C1:
-            type: "object"
-    - catalog_id: "cat-2"
-      version: "0.9"
-      catalog_schema:
-        catalogId: "cat-2"
-      theme_schema:
-        type: "object"
-        properties:
-          color:
-            type: "string"
+  - catalog_id: cat-1
+    components:
+      C1:
+        type: object
+  - catalog_id: cat-2
+    theme:
+      type: object
+      properties:
+        color:
+          type: string
   args:
     include_inline_catalogs: true
     version: "v0.9"
@@ -1134,11 +1042,9 @@
 - name: test_v10_create_surface_inline_initialization
   description: Tests v1.0 createSurface message with inline components and initial dataModel initialization.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog-v10"
-      version: "1.0"
-      catalog_schema:
-        catalogId: "test-catalog-v10"
+  protocol_version: "v1.0"
+  catalog_paths:
+    - "specification/v1_0/catalogs/basic/catalog.json"
   messages:
     - version: "v1.0"
       createSurface:
@@ -1172,11 +1078,9 @@
 - name: test_v10_create_surface_optional_catalog_id
   description: Tests that v1.0 createSurface permits omitting catalogId.
   action: process_messages
-  catalogs:
-    - catalog_id: "default-cat"
-      version: "1.0"
-      catalog_schema:
-        catalogId: "default-cat"
+  protocol_version: "v1.0"
+  catalog_paths:
+    - "specification/v1_0/catalogs/basic/catalog.json"
   messages:
     - version: "v1.0"
       createSurface:
@@ -1189,11 +1093,9 @@
 - name: test_v10_create_surface_with_metadata_extensions
   description: Tests v1.0 createSurface with metadata and extension descriptors.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog-v10"
-      version: "1.0"
-      catalog_schema:
-        catalogId: "test-catalog-v10"
+  protocol_version: "v1.0"
+  catalog_paths:
+    - "specification/v1_0/catalogs/basic/catalog.json"
   messages:
     - version: "v1.0"
       createSurface:
@@ -1212,14 +1114,10 @@
   description: Tests that individual components in v1.0 can specify a catalogId override different from the surface default.
   action: process_messages
   catalogs:
-    - catalog_id: "main-catalog"
-      version: "1.0"
-      catalog_schema:
-        catalogId: "main-catalog"
-    - catalog_id: "charts-catalog"
-      version: "1.0"
-      catalog_schema:
-        catalogId: "charts-catalog"
+  - catalog_id: main-catalog
+    protocol_version: v1.0
+  - catalog_id: charts-catalog
+    protocol_version: v1.0
   messages:
     - version: "v1.0"
       createSurface:
@@ -1251,11 +1149,9 @@
 - name: test_v10_update_data_model_deletion
   description: Tests that updating a path with value null deletes the key from the data model in v1.0.
   action: process_messages
-  catalogs:
-    - catalog_id: "test-catalog-v10"
-      version: "1.0"
-      catalog_schema:
-        catalogId: "test-catalog-v10"
+  protocol_version: "v1.0"
+  catalog_paths:
+    - "specification/v1_0/catalogs/basic/catalog.json"
   messages:
     - version: "v1.0"
       createSurface:
@@ -1281,10 +1177,8 @@
   description: Tests generating v1.0 renderer capabilities structure.
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: "cat-v10"
-      version: "1.0"
-      catalog_schema:
-        catalogId: "cat-v10"
+  - catalog_id: cat-v10
+    protocol_version: v1.0
   args:
     include_inline_catalogs: false
     version: "v1.0"
