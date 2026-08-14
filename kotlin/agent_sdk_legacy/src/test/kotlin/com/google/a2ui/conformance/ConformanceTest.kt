@@ -488,7 +488,11 @@ class ConformanceTest {
             val selected = manager.getSelectedCatalog()
             val expect = case[ConformanceTestHelper.KEY_EXPECT] as Map<*, *>
 
-            if (expect.containsKey("catalog_schema")) {
+            if (expect.containsKey("components") || expect.containsKey("catalogId")) {
+              val expectSchemaStr = jsonMapper.writeValueAsString(expect)
+              val expectSchema = Json.parseToJsonElement(expectSchemaStr)
+              assertEquals(expectSchema, selected.catalogSchema)
+            } else if (expect.containsKey("catalog_schema")) {
               val expectSchemaStr = jsonMapper.writeValueAsString(expect["catalog_schema"])
               val expectSchema = Json.parseToJsonElement(expectSchemaStr)
               assertEquals(expectSchema, selected.catalogSchema)
