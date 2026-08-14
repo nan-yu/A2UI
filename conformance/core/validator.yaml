@@ -29,7 +29,8 @@
   description: Tests schema validation of v0.8 message envelopes against the standard v0.8 catalog schema.
   action: validate
   protocol_version: "v0.8"
-  catalog_path: "specification/v0_8/json/standard_catalog_definition.json"
+  catalog_paths:
+    - "specification/v0_8/json/standard_catalog_definition.json"
   steps:
     - payload:
         - beginRendering:
@@ -178,7 +179,8 @@
   description: Tests schema validation of v0.9 message envelopes against the basic v0.9 catalog schema.
   action: validate
   protocol_version: "v0.9"
-  catalog_path: "specification/v0_9/catalogs/basic/catalog.json"
+  catalog_paths:
+    - "specification/v0_9/catalogs/basic/catalog.json"
   steps:
     - payload:
         - version: "v0.9"
@@ -341,7 +343,8 @@
   description: Tests schema validation of v1.0 message envelopes (inline components, optional catalogId, data deletion) against the basic v1.0 catalog schema.
   action: validate
   protocol_version: "v1.0"
-  catalog_path: "specification/v1_0/catalogs/basic/catalog.json"
+  catalog_paths:
+    - "specification/v1_0/catalogs/basic/catalog.json"
   steps:
     - payload:
         - version: "v1.0"

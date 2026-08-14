@@ -44,10 +44,6 @@
         },
         "description": "List of catalog objects for multi-catalog or processor tests."
       },
-      "catalog_path": {
-        "type": "string",
-        "description": "File path to catalog schema JSON file."
-      },
       "catalog_paths": {
         "type": "array",
         "items": {
