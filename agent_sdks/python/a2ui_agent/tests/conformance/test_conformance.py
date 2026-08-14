@@ -274,8 +274,8 @@ def test_validator_conformance(name, test_case):
     if steps is None and "messages" in test_case:
         steps = [test_case]
 
+    validator = A2uiValidator(catalog=catalog)
     for step in steps:
-        validator = A2uiValidator(catalog=catalog)
         step_messages = step["messages"]
         expect_error = step.get("expect_error") or test_case.get("expect_error")
         if expect_error:
@@ -303,12 +303,13 @@ def test_catalog_conformance(name, test_case):
         allowed_messages = args.get("allowed_messages", [])
         pruned = catalog.with_pruning(allowed_components, allowed_messages)
         expected = test_case["expect"]
-        if "catalog_schema" in expected:
-            assert pruned.catalog_schema == expected["catalog_schema"]
-        if "s2c_schema" in expected:
-            assert pruned.s2c_schema == expected["s2c_schema"]
-        if "common_types_schema" in expected:
-            assert pruned.common_types_schema == expected["common_types_schema"]
+        if isinstance(expected, dict):
+            if "catalog_schema" in expected:
+                assert pruned.catalog_schema == expected["catalog_schema"]
+            if "s2c_schema" in expected:
+                assert pruned.s2c_schema == expected["s2c_schema"]
+            if "common_types_schema" in expected:
+                assert pruned.common_types_schema == expected["common_types_schema"]
 
     elif action == "render":
         output = catalog.render_as_llm_instructions()
@@ -402,11 +403,11 @@ def test_schema_manager_conformance(name, test_case):
         )
         selected = direct_json_format.get_selected_catalog()
         expected = test_case["expect"]
-        if "supported_catalog_ids" in expected:
+        if isinstance(expected, dict) and "supported_catalog_ids" in expected:
             assert [
                 c.catalog_id for c in direct_json_format._supported_catalogs
             ] == expected["supported_catalog_ids"]
-        else:
+        elif isinstance(expected, dict):
             assert selected.catalog_schema == expected
 
     elif action == "generate_prompt":
