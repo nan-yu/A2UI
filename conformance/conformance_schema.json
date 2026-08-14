@@ -182,12 +182,6 @@
           "type": "object",
           "description": "Theme property schema definition."
         },
-        "catalogId": {
-          "type": "string"
-        },
-        "protocolVersion": {
-          "type": "string"
-        },
         "styles": {
           "type": "object"
         },

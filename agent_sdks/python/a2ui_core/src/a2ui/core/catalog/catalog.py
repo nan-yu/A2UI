@@ -80,7 +80,16 @@ class Catalog(Generic[TComponent, TFunction]):
         catalog_id: Optional[str] = None,
     ) -> "Catalog[ComponentApi, FunctionApi]":
         """Constructs a schema-only Catalog directly from raw JSON Schema."""
-        catalog_id = catalog_id or catalog_schema.get("catalogId")
+        catalog_id = (
+            catalog_id
+            or catalog_schema.get("catalog_id")
+            or catalog_schema.get("catalogId")
+        )
+        spec_version = (
+            spec_version
+            or catalog_schema.get("protocol_version")
+            or catalog_schema.get("protocolVersion")
+        )
         if not catalog_id:
             raise ValueError("catalog_id must be provided or exist in catalog_schema.")
 
