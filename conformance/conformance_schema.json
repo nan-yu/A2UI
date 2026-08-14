@@ -5,144 +5,137 @@
   "description": "JSON schema validating all A2UI conformance test suites across core, agent, and extensions domains.",
   "type": "array",
   "items": {
-    "type": "object",
-    "required": [
-      "name",
-      "action"
-    ],
-    "properties": {
-      "name": {
-        "type": "string",
-        "description": "Unique name of the test case."
-      },
-      "action": {
-        "type": "string",
-        "description": "The conformance test action to perform."
-      },
-      "description": {
-        "type": "string",
-        "description": "Optional description of what the test verifies."
-      },
-      "protocol_version": {
-        "type": "string",
-        "enum": [
-          "v0.8",
-          "v0.9",
-          "v0.9.1",
-          "v1.0"
-        ],
-        "description": "Target A2UI protocol version."
-      },
-      "catalog": {
-        "$ref": "#/$defs/Catalog",
-        "description": "Inlined catalog definition object."
-      },
-      "catalogs": {
-        "type": "array",
-        "items": {
-          "$ref": "#/$defs/Catalog"
-        },
-        "description": "List of catalog objects for multi-catalog or processor tests."
-      },
-      "catalog_paths": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        },
-        "description": "List of file paths to catalog schema JSON files."
-      },
-      "catalog_id": {
-        "type": "string",
-        "description": "Target catalog identifier."
-      },
-      "catalog_configs": {
-        "description": "Catalog configurations or options."
-      },
-      "input": {
-        "description": "Primary input for parser and single-step execution tests."
-      },
-      "messages": {
-        "description": "A2UI message array or container object."
-      },
-      "payload": {
-        "description": "Test payload data."
-      },
-      "args": {
-        "type": "object",
-        "description": "Execution arguments for the test action."
-      },
-      "format": {
-        "description": "Inference format configuration or name."
-      },
-      "schema": {
-        "description": "JSON schema object or path used during execution."
-      },
-      "surface": {
-        "type": "object",
-        "description": "Surface state or configuration object."
-      },
-      "modifiers": {
-        "type": "array",
-        "description": "Modifiers applied during test execution."
-      },
-      "steps": {
-        "type": "array",
-        "description": "Sequential steps for multi-step execution tests.",
-        "items": {
-          "type": "object",
-          "properties": {
-            "input": {
-              "description": "Input for this step."
-            },
-            "payload": {
-              "description": "Payload for this step."
-            },
-            "messages": {
-              "description": "Messages for this step."
-            },
-            "chunk": {
-              "type": "string",
-              "description": "Stream chunk string."
-            },
-            "args": {
-              "type": "object",
-              "description": "Arguments for this step."
-            },
-            "expect": {
-              "description": "Expected output for this step."
-            },
-            "expect_error": {
-              "$ref": "#/$defs/ExpectError"
-            },
-            "expect_contains": {
-              "description": "Expected substrings or sub-objects for this step."
-            }
-          }
-        }
-      },
-      "expect": {
-        "description": "Expected outcome of the test action."
-      },
-      "expect_error": {
-        "$ref": "#/$defs/ExpectError"
-      },
-      "expect_contains": {
-        "description": "Expected substrings or sub-objects in the output."
-      },
-      "expect_empty": {
-        "type": "boolean",
-        "description": "Whether output is expected to be empty."
-      },
-      "expect_selected": {
-        "type": "string",
-        "description": "Expected selected catalog identifier."
-      },
-      "assertions": {
-        "description": "Assertions to verify."
-      }
-    }
+    "$ref": "#/$defs/TestCase"
   },
   "$defs": {
+    "TestCase": {
+      "type": "object",
+      "required": [
+        "name",
+        "action"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique name of the test case."
+        },
+        "action": {
+          "type": "string",
+          "description": "The conformance test action to perform."
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional description of what the test verifies."
+        },
+        "protocol_version": {
+          "$ref": "#/$defs/ProtocolVersion",
+          "description": "Target A2UI protocol version."
+        },
+        "catalog": {
+          "$ref": "#/$defs/Catalog",
+          "description": "Inlined catalog definition object."
+        },
+        "catalogs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Catalog"
+          },
+          "description": "List of catalog objects for multi-catalog or processor tests."
+        },
+        "catalog_paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of file paths to catalog schema JSON files."
+        },
+        "catalog_id": {
+          "type": "string",
+          "description": "Target catalog identifier."
+        },
+        "catalog_configs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CatalogConfig"
+          },
+          "description": "Catalog configurations or options."
+        },
+        "input": {
+          "description": "Primary input for parser and single-step execution tests."
+        },
+        "messages": {
+          "description": "A2UI message array or container object."
+        },
+        "payload": {
+          "description": "Test payload data."
+        },
+        "surface": {
+          "type": "object",
+          "description": "Surface state or configuration object."
+        },
+        "args": {
+          "type": "object",
+          "description": "Execution arguments for the test action."
+        },
+        "format": {
+          "description": "Inference format configuration or name."
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Modifiers applied during test execution."
+        },
+        "strict_mode": {
+          "type": "boolean",
+          "description": "Whether strict validation mode is enabled."
+        },
+        "disable_validation": {
+          "type": "boolean",
+          "description": "Whether validation is explicitly disabled for the test."
+        },
+        "steps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Step"
+          },
+          "description": "Sequential steps for multi-step execution tests."
+        },
+        "expect": {
+          "description": "Expected outcome of the test action."
+        },
+        "expect_error": {
+          "$ref": "#/$defs/ExpectError"
+        },
+        "expect_contains": {
+          "description": "Expected substrings or sub-objects in the output."
+        },
+        "expect_empty": {
+          "type": "boolean",
+          "description": "Whether output is expected to be empty."
+        },
+        "expect_selected": {
+          "type": "string",
+          "description": "Expected selected catalog identifier."
+        },
+        "assertions": {
+          "$ref": "#/$defs/AccessibilityAssertions",
+          "description": "Accessibility assertions to verify."
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProtocolVersion": {
+      "type": "string",
+      "enum": [
+        "v0.8",
+        "v0.9",
+        "v0.9.1",
+        "v1.0"
+      ],
+      "description": "Supported A2UI protocol versions."
+    },
     "Catalog": {
       "type": "object",
       "properties": {
@@ -151,13 +144,7 @@
           "description": "Identifier of the catalog."
         },
         "protocol_version": {
-          "type": "string",
-          "enum": [
-            "v0.8",
-            "v0.9",
-            "v0.9.1",
-            "v1.0"
-          ],
+          "$ref": "#/$defs/ProtocolVersion",
           "description": "Protocol version supported by this catalog."
         },
         "components": {
@@ -183,22 +170,99 @@
           "description": "Theme property schema definition."
         },
         "styles": {
-          "type": "object"
+          "type": "object",
+          "description": "Legacy v0.8 styles definition."
         },
         "$defs": {
-          "type": "object"
+          "type": "object",
+          "description": "Local schema definitions or references."
         },
         "version": {
-          "type": "string"
+          "type": "string",
+          "description": "Legacy parser catalog version."
         },
-        "s2c_schema": {},
-        "catalog_schema": {},
-        "common_types_schema": {},
+        "s2c_schema": {
+          "description": "Legacy parser server-to-client schema path or object."
+        },
+        "catalog_schema": {
+          "description": "Legacy parser catalog schema path or object."
+        },
+        "common_types_schema": {
+          "description": "Legacy parser common types schema path or object."
+        },
         "custom_cuttable_keys": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "description": "Custom cuttable keys for streaming parser."
+        }
+      },
+      "additionalProperties": false
+    },
+    "CatalogConfig": {
+      "type": "object",
+      "required": [
+        "name",
+        "path"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name or identifier of the catalog config."
+        },
+        "path": {
+          "type": "string",
+          "description": "File path to the catalog schema JSON."
+        }
+      },
+      "additionalProperties": false
+    },
+    "Step": {
+      "type": "object",
+      "properties": {
+        "input": {
+          "description": "Input for this step."
+        },
+        "payload": {
+          "description": "Payload for this step."
+        },
+        "messages": {
+          "description": "Messages for this step."
+        },
+        "chunk": {
+          "type": "string",
+          "description": "Stream chunk string."
+        },
+        "args": {
+          "type": "object",
+          "description": "Arguments for this step."
+        },
+        "expect": {
+          "description": "Expected output for this step."
+        },
+        "expect_error": {
+          "$ref": "#/$defs/ExpectError"
+        },
+        "expect_contains": {
+          "description": "Expected substrings or sub-objects for this step."
+        }
+      },
+      "additionalProperties": false
+    },
+    "AccessibilityAssertions": {
+      "type": "object",
+      "properties": {
+        "axe_core": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of axe-core rule IDs expected to pass."
+        },
+        "accessibility_tree": {
+          "type": "object",
+          "description": "Expected accessibility node tree structure."
         }
       },
       "additionalProperties": false
@@ -238,7 +302,8 @@
                 }
               }
             }
-          }
+          },
+          "additionalProperties": false
         }
       ]
     }
