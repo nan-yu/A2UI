@@ -268,7 +268,7 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: topo-cat
+    - catalogId: topo-cat
       components:
         Card:
           type: object
@@ -296,7 +296,7 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: topo-cat
+    - catalogId: topo-cat
       components:
         Card:
           type: object
@@ -330,7 +330,7 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: topo-cat
+    - catalogId: topo-cat
       components:
         Card:
           type: object
@@ -367,7 +367,7 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: topo-cat
+    - catalogId: topo-cat
       components:
         Card:
           type: object
@@ -398,7 +398,7 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: topo-cat
+    - catalogId: topo-cat
       components:
         Card:
           type: object
@@ -429,7 +429,7 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: topo-cat
+    - catalogId: topo-cat
       components:
         Card:
           type: object
@@ -473,7 +473,7 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: strict-cat
+    - catalogId: strict-cat
       components:
         Chart:
           type: object
@@ -508,7 +508,7 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: strict-cat
+    - catalogId: strict-cat
       components:
         Button:
           type: object
@@ -542,7 +542,7 @@
   action: process_messages
   strict_mode: true
   catalogs:
-    - catalog_id: theme-cat
+    - catalogId: theme-cat
       theme:
         type: object
         properties:
@@ -814,8 +814,8 @@
   description: Tests generating v0.8 renderer capabilities structure.
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: cat-v08
-      protocol_version: "v0.8"
+    - catalogId: cat-v08
+      protocolVersion: "v0.8"
   args:
     include_inline_catalogs: false
     version: "v0.8"
@@ -849,8 +849,8 @@
   description: Tests generating v0.9 renderer capabilities with supportedCatalogIds.
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: cat-1
-    - catalog_id: cat-2
+    - catalogId: cat-1
+    - catalogId: cat-2
   args:
     include_inline_catalogs: false
     version: "v0.9"
@@ -864,7 +864,7 @@
   description: Tests generating inline catalogs with component schema envelopes.
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: cat-1
+    - catalogId: cat-1
       components:
         Button:
           type: object
@@ -901,7 +901,7 @@
   description: "Tests transforming REF: tagged descriptions into valid JSON Schema $ref nodes."
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: cat-ref
+    - catalogId: cat-ref
       components:
         Custom:
           type: object
@@ -933,7 +933,7 @@
   description: Tests generating inline catalogs including function definitions and theme schema.
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: cat-full
+    - catalogId: cat-full
       components:
         Button:
           type: object
@@ -1003,11 +1003,11 @@
   description: Tests generating capabilities for multiple registered catalogs in v0.9.
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: cat-1
+    - catalogId: cat-1
       components:
         C1:
           type: object
-    - catalog_id: cat-2
+    - catalogId: cat-2
       theme:
         type: object
         properties:
@@ -1114,10 +1114,10 @@
   description: Tests that individual components in v1.0 can specify a catalogId override different from the surface default.
   action: process_messages
   catalogs:
-    - catalog_id: main-catalog
-      protocol_version: "v1.0"
-    - catalog_id: charts-catalog
-      protocol_version: "v1.0"
+    - catalogId: main-catalog
+      protocolVersion: "v1.0"
+    - catalogId: charts-catalog
+      protocolVersion: "v1.0"
   messages:
     - version: "v1.0"
       createSurface:
@@ -1177,8 +1177,8 @@
   description: Tests generating v1.0 renderer capabilities structure.
   action: get_renderer_capabilities
   catalogs:
-    - catalog_id: cat-v10
-      protocol_version: "v1.0"
+    - catalogId: cat-v10
+      protocolVersion: "v1.0"
   args:
     include_inline_catalogs: false
     version: "v1.0"

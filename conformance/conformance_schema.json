@@ -28,6 +28,10 @@
           "$ref": "#/$defs/ProtocolVersion",
           "description": "Target A2UI protocol version."
         },
+        "protocolVersion": {
+          "$ref": "#/$defs/ProtocolVersion",
+          "description": "Target A2UI protocol version."
+        },
         "catalog": {
           "$ref": "#/$defs/Catalog",
           "description": "Inlined catalog definition object."
@@ -47,6 +51,10 @@
           "description": "List of file paths to catalog schema JSON files."
         },
         "catalog_id": {
+          "type": "string",
+          "description": "Target catalog identifier."
+        },
+        "catalogId": {
           "type": "string",
           "description": "Target catalog identifier."
         },
@@ -128,9 +136,17 @@
     "Catalog": {
       "type": "object",
       "properties": {
+        "catalogId": {
+          "type": "string",
+          "description": "Identifier of the catalog."
+        },
         "catalog_id": {
           "type": "string",
           "description": "Identifier of the catalog."
+        },
+        "protocolVersion": {
+          "$ref": "#/$defs/ProtocolVersion",
+          "description": "Protocol version supported by this catalog."
         },
         "protocol_version": {
           "$ref": "#/$defs/ProtocolVersion",

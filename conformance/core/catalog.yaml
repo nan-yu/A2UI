@@ -25,7 +25,7 @@
   description: Tests parsing a v0.8 catalog with styles, verifying backward-compatible mapping into theme and components.
   action: from_json
   protocol_version: "v0.8"
-  catalog_id: "https://a2ui.org/catalogs/v08/basic"
+  catalogId: "https://a2ui.org/catalogs/v08/basic"
   catalog:
     components:
       Text:
@@ -42,7 +42,7 @@
       primaryColor:
         type: string
   expect:
-    catalog_id: "https://a2ui.org/catalogs/v08/basic"
+    catalogId: "https://a2ui.org/catalogs/v08/basic"
     protocol_version: "v0.8"
     components:
       Button:
@@ -64,7 +64,7 @@
   description: Tests parsing a v0.9 catalog with theme schema, components, and functions.
   action: from_json
   catalog:
-    catalog_id: "https://a2ui.org/catalogs/v09/basic"
+    catalogId: "https://a2ui.org/catalogs/v09/basic"
     theme:
       type: object
       properties:
@@ -86,7 +86,7 @@
         parameters:
           amount: {type: number}
   expect:
-    catalog_id: "https://a2ui.org/catalogs/v09/basic"
+    catalogId: "https://a2ui.org/catalogs/v09/basic"
     protocol_version: "v0.9"
     theme:
       type: object
@@ -113,7 +113,7 @@
   description: Tests that $defs.anyComponent.oneOf filters components to only permitted ones.
   action: from_json
   catalog:
-    catalog_id: "https://a2ui.org/catalogs/v09/filtered"
+    catalogId: "https://a2ui.org/catalogs/v09/filtered"
     $defs:
       anyComponent:
         oneOf:
@@ -127,7 +127,7 @@
       HiddenComponent:
         type: object
   expect:
-    catalog_id: "https://a2ui.org/catalogs/v09/filtered"
+    catalogId: "https://a2ui.org/catalogs/v09/filtered"
     protocol_version: "v0.9"
     components:
       Button:
@@ -139,7 +139,7 @@
   description: Tests that $defs.anyFunction.oneOf filters functions to only permitted ones.
   action: from_json
   catalog:
-    catalog_id: "https://a2ui.org/catalogs/v09/func_filtered"
+    catalogId: "https://a2ui.org/catalogs/v09/func_filtered"
     $defs:
       anyFunction:
         oneOf:
@@ -150,7 +150,7 @@
       internalSecretFunc:
         returnType: string
   expect:
-    catalog_id: "https://a2ui.org/catalogs/v09/func_filtered"
+    catalogId: "https://a2ui.org/catalogs/v09/func_filtered"
     protocol_version: "v0.9"
     functions:
       validateEmail:
@@ -160,7 +160,7 @@
   description: Tests that Catalog.from_json inlines local #/$defs references into component schemas.
   action: from_json
   catalog:
-    catalog_id: "https://a2ui.org/catalogs/v09/defs"
+    catalogId: "https://a2ui.org/catalogs/v09/defs"
     $defs:
       BadgeType:
         type: object
@@ -178,7 +178,7 @@
           badge:
             $ref: "#/$defs/BadgeType"
   expect:
-    catalog_id: "https://a2ui.org/catalogs/v09/defs"
+    catalogId: "https://a2ui.org/catalogs/v09/defs"
     protocol_version: "v0.9"
     components:
       CardWithBadge:
@@ -198,7 +198,7 @@
   description: Tests resolving transitively nested local $defs references.
   action: from_json
   catalog:
-    catalog_id: "https://a2ui.org/catalogs/v09/nested_defs"
+    catalogId: "https://a2ui.org/catalogs/v09/nested_defs"
     $defs:
       InnerStyle:
         type: object
@@ -216,7 +216,7 @@
           config:
             $ref: "#/$defs/OuterConfig"
   expect:
-    catalog_id: "https://a2ui.org/catalogs/v09/nested_defs"
+    catalogId: "https://a2ui.org/catalogs/v09/nested_defs"
     protocol_version: "v0.9"
     components:
       StyledBox:
@@ -234,7 +234,7 @@
   description: Tests that Catalog.from_json resolves and inlines standard common_types schema references.
   action: from_json
   catalog:
-    catalog_id: "https://a2ui.org/catalogs/v09/with_common_types"
+    catalogId: "https://a2ui.org/catalogs/v09/with_common_types"
     components:
       DataField:
         type: object
@@ -245,7 +245,7 @@
             $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/DataBinding"
         required: ["id", "binding"]
   expect:
-    catalog_id: "https://a2ui.org/catalogs/v09/with_common_types"
+    catalogId: "https://a2ui.org/catalogs/v09/with_common_types"
     protocol_version: "v0.9"
     components:
       DataField:
@@ -268,7 +268,7 @@
   description: Tests that Catalog.from_json resolves and inlines ChildList from common_types.
   action: from_json
   catalog:
-    catalog_id: "https://a2ui.org/catalogs/v09/container"
+    catalogId: "https://a2ui.org/catalogs/v09/container"
     components:
       Container:
         type: object
@@ -276,7 +276,7 @@
           children:
             $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ChildList"
   expect:
-    catalog_id: "https://a2ui.org/catalogs/v09/container"
+    catalogId: "https://a2ui.org/catalogs/v09/container"
     protocol_version: "v0.9"
     components:
       Container:
@@ -306,7 +306,7 @@
   action: from_json
   catalog:
     protocol_version: "v1.0"
-    catalog_id: "https://a2ui.org/catalogs/v10/basic"
+    catalogId: "https://a2ui.org/catalogs/v10/basic"
     components:
       Layout:
         type: object
@@ -324,7 +324,7 @@
           subtotal: {type: number}
           rate: {type: number}
   expect:
-    catalog_id: "https://a2ui.org/catalogs/v10/basic"
+    catalogId: "https://a2ui.org/catalogs/v10/basic"
     protocol_version: "v1.0"
     theme: {}
     components:
@@ -349,7 +349,7 @@
   action: from_json
   catalog:
     protocol_version: "v1.0"
-    catalog_id: "https://a2ui.org/catalogs/v10/functions"
+    catalogId: "https://a2ui.org/catalogs/v10/functions"
     functions:
       formatDate:
         returnType: string
@@ -361,7 +361,7 @@
         parameters:
           value: {type: number}
   expect:
-    catalog_id: "https://a2ui.org/catalogs/v10/functions"
+    catalogId: "https://a2ui.org/catalogs/v10/functions"
     protocol_version: "v1.0"
     functions:
       formatDate:
@@ -387,13 +387,13 @@
 - name: test_catalog_from_json_override_catalog_id
   description: Tests overriding catalogId during Catalog.from_json.
   action: from_json
-  catalog_id: "https://a2ui.org/catalogs/overridden"
+  catalogId: "https://a2ui.org/catalogs/overridden"
   catalog:
-    catalog_id: "https://a2ui.org/catalogs/original"
+    catalogId: "https://a2ui.org/catalogs/original"
     components:
       Text: {type: object}
   expect:
-    catalog_id: "https://a2ui.org/catalogs/overridden"
+    catalogId: "https://a2ui.org/catalogs/overridden"
     protocol_version: "v0.9"
     components:
       Text:
@@ -437,7 +437,7 @@
   description: Tests serializing a v0.9 Catalog into JSON schema with generated $defs.anyComponent and $defs.theme.
   action: catalog_schema
   catalog:
-    catalog_id: "https://a2ui.org/catalogs/v09/basic"
+    catalogId: "https://a2ui.org/catalogs/v09/basic"
     components:
       Button:
         type: object
@@ -511,7 +511,7 @@
   description: Tests serializing a v0.9 Catalog without theme (omits $defs.theme).
   action: catalog_schema
   catalog:
-    catalog_id: "https://a2ui.org/catalogs/v09/simple"
+    catalogId: "https://a2ui.org/catalogs/v09/simple"
     components:
       Text:
         type: object
@@ -538,7 +538,7 @@
   action: catalog_schema
   protocol_version: "v1.0"
   catalog:
-    catalog_id: "https://a2ui.org/catalogs/v10/basic"
+    catalogId: "https://a2ui.org/catalogs/v10/basic"
     components:
       Text:
         type: object
