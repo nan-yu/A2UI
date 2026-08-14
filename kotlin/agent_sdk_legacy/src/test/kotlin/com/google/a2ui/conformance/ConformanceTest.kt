@@ -253,17 +253,14 @@ class ConformanceTest {
 
   @TestFactory
   fun testValidatorConformance(): List<DynamicTest> {
-    if (isSkipped(VALIDATOR_YAML_FILE, "")) {
+    if (isSkipped(VALIDATOR_YAML_FILE)) {
       return emptyList()
     }
     val conformanceFile = ConformanceTestHelper.getConformanceFile(VALIDATOR_YAML_FILE)
     val conformanceDir = ConformanceTestHelper.getConformanceDir()
     val cases = parseConformanceYaml(conformanceFile, conformanceDir)
-    return cases.mapNotNull { case ->
+    return cases.map { case ->
       val name = case.name
-      if (isSkipped(VALIDATOR_YAML_FILE, name)) {
-        return@mapNotNull null
-      }
 
       DynamicTest.dynamicTest(name) {
         val validator = A2uiValidator(case.catalog, case.schemaMappings)
@@ -298,19 +295,16 @@ class ConformanceTest {
 
   @TestFactory
   fun testCatalogConformance(): List<DynamicTest> {
-    if (isSkipped(CATALOG_YAML_FILE, "")) {
+    if (isSkipped(CATALOG_YAML_FILE)) {
       return emptyList()
     }
     val conformanceFile = ConformanceTestHelper.getConformanceFile(CATALOG_YAML_FILE)
     val conformanceDir = ConformanceTestHelper.getConformanceDir()
     val rawList = yamlMapper.readValue(conformanceFile, Any::class.java) as List<*>
 
-    return rawList.mapNotNull { caseObj ->
+    return rawList.map { caseObj ->
       val case = caseObj as Map<*, *>
       val name = case[ConformanceTestHelper.KEY_NAME] as String
-      if (isSkipped(CATALOG_YAML_FILE, name)) {
-        return@mapNotNull null
-      }
       val action = case[ConformanceTestHelper.KEY_ACTION] as String
       val args = case[ConformanceTestHelper.KEY_ARGS] as? Map<*, *> ?: emptyMap<Any, Any>()
 
@@ -749,18 +743,8 @@ class ConformanceTest {
 
     private val SKIP_TEST_SUITES = setOf("core/catalog.yaml", "core/validator.yaml")
 
-    private val SKIP_TEST_NAMES =
-      setOf(
-        "test_custom_catalog_0_9",
-        "test_validator_1_0",
-        "test_custom_catalog_1_0",
-        "test_validator_theme_schema",
-      )
-
-    private fun isSkipped(suitePath: String, testName: String): Boolean {
-      return suitePath in SKIP_TEST_SUITES ||
-        File(suitePath).name in SKIP_TEST_SUITES ||
-        testName in SKIP_TEST_NAMES
+    private fun isSkipped(suitePath: String): Boolean {
+      return suitePath in SKIP_TEST_SUITES || File(suitePath).name in SKIP_TEST_SUITES
     }
   }
 }
