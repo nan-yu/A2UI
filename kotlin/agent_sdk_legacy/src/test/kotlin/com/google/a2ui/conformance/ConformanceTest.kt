@@ -142,22 +142,8 @@ class ConformanceTest {
       val case = caseObj as Map<*, *>
       val name = case[ConformanceTestHelper.KEY_NAME] as String
 
-      val catalogMap = case[ConformanceTestHelper.KEY_CATALOG] as? Map<*, *>
-      val (catalog, schemaMappings) =
-        if (catalogMap != null) {
-          buildCatalog(catalogMap, conformanceDir, baseSchemaMappings)
-        } else {
-          Pair(
-            A2uiCatalog(
-              version = A2uiVersion.VERSION_0_9,
-              name = TEST_CATALOG_NAME,
-              serverToClientSchema = JsonObject(emptyMap()),
-              commonTypesSchema = JsonObject(emptyMap()),
-              catalogSchema = JsonObject(emptyMap()),
-            ),
-            baseSchemaMappings,
-          )
-        }
+      val catalogMap = case[ConformanceTestHelper.KEY_CATALOG] as Map<*, *>
+      val (catalog, schemaMappings) = buildCatalog(catalogMap, conformanceDir, baseSchemaMappings)
 
       val stepsList =
         (case[ConformanceTestHelper.KEY_STEPS] as? List<*>)
@@ -488,19 +474,13 @@ class ConformanceTest {
             val selected = manager.getSelectedCatalog()
             val expect = case[ConformanceTestHelper.KEY_EXPECT] as Map<*, *>
 
-            if (expect.containsKey("components") || expect.containsKey("catalogId")) {
-              val expectSchemaStr = jsonMapper.writeValueAsString(expect)
-              val expectSchema = Json.parseToJsonElement(expectSchemaStr)
-              assertEquals(expectSchema, selected.catalogSchema)
-            } else if (expect.containsKey("catalog_schema")) {
-              val expectSchemaStr = jsonMapper.writeValueAsString(expect["catalog_schema"])
-              val expectSchema = Json.parseToJsonElement(expectSchemaStr)
-              assertEquals(expectSchema, selected.catalogSchema)
-            }
-
             if (expect.containsKey("supported_catalog_ids")) {
               val expectIds = expect["supported_catalog_ids"] as List<String>
               assertEquals(expectIds, manager.supportedCatalogIds)
+            } else {
+              val expectSchemaStr = jsonMapper.writeValueAsString(expect)
+              val expectSchema = Json.parseToJsonElement(expectSchemaStr)
+              assertEquals(expectSchema, selected.catalogSchema)
             }
           }
           "generate_prompt" -> {
