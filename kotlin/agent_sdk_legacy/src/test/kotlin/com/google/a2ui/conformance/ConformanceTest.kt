@@ -443,6 +443,14 @@ class ConformanceTest {
               assertExceptionMatches(exception, expectError)
             } else {
               val selected = manager.getSelectedCatalog(capsJson)
+              val expectObj = case["expect"]
+              if (expectObj is String) {
+                assertEquals(expectObj, selected.catalogId)
+              } else if (expectObj is Map<*, *>) {
+                val expectSchemaStr = jsonMapper.writeValueAsString(expectObj)
+                val expectSchema = Json.parseToJsonElement(expectSchemaStr)
+                assertEquals(expectSchema, selected.catalogSchema)
+              }
               if (case.containsKey("expect_selected")) {
                 assertEquals(case["expect_selected"] as String, selected.catalogId)
               }

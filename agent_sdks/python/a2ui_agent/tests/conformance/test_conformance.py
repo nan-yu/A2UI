@@ -411,6 +411,12 @@ def test_schema_manager_conformance(name, test_case):
                 direct_json_format.get_selected_catalog(client_capabilities)
         else:
             selected = direct_json_format.get_selected_catalog(client_capabilities)
+            if "expect" in test_case:
+                expected = test_case["expect"]
+                if isinstance(expected, str):
+                    assert selected.catalog_id == expected
+                elif isinstance(expected, dict):
+                    assert selected.catalog_schema == expected
             if "expect_selected" in test_case:
                 assert selected.catalog_id == test_case["expect_selected"]
             if "expect_catalog_schema" in test_case:

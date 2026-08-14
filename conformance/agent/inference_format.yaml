@@ -87,7 +87,7 @@
         - catalogId: id_inline
           components:
             Button: {}
-  expect_catalog_schema:
+  expect:
     catalogId: id_basic
     components:
       Text: {}
@@ -124,7 +124,7 @@
         - catalogId: id_basic
           components:
             Icon: {}
-  expect_catalog_schema:
+  expect:
     catalogId: id_basic
     components:
       Text: {}
@@ -148,7 +148,7 @@
         - catalogId: id_basic
           components:
             Button: {}
-  expect_catalog_schema:
+  expect:
     catalogId: id_basic
     components:
       Text: {}

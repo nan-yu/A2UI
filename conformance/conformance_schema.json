@@ -137,9 +137,6 @@
         "type": "string",
         "description": "Expected selected catalog identifier."
       },
-      "expect_catalog_schema": {
-        "description": "Expected catalog schema object or definition."
-      },
       "assertions": {
         "description": "Assertions to verify."
       }
