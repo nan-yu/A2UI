@@ -294,7 +294,218 @@
     category: "ValidationError"
     message: "Cannot create component comp1 without a type"
 
-# --- 1.3 Strict Schema Validation & Atomic Rollback ---
+# --- 1.3 Graph Topology & Structural Integrity ---
+
+- name: test_topology_missing_root_error
+  description: Tests that component hierarchies missing a root component fail validation in strict mode.
+  action: process_messages
+  strict_mode: true
+  catalogs:
+    - catalog_id: "topo-cat"
+      version: "0.9"
+      catalog_schema:
+        catalogId: "topo-cat"
+        components:
+          Card:
+            type: "object"
+            properties:
+              child:
+                $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
+  messages:
+    - version: "v0.9"
+      createSurface:
+        surfaceId: "s1"
+        catalogId: "topo-cat"
+    - version: "v0.9"
+      updateComponents:
+        surfaceId: "s1"
+        components:
+          - id: "c1"
+            component: "Card"
+            child: "c2"
+  expect_error:
+    category: "ValidationError"
+    message: "Missing root component"
+
+- name: test_topology_direct_circular_reference_error
+  description: Tests that direct circular component references (root -> c1 -> root) are detected and rejected.
+  action: process_messages
+  strict_mode: true
+  catalogs:
+    - catalog_id: "topo-cat"
+      version: "0.9"
+      catalog_schema:
+        catalogId: "topo-cat"
+        components:
+          Card:
+            type: "object"
+            properties:
+              child:
+                $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
+            required: ["component", "child"]
+  messages:
+    - version: "v0.9"
+      createSurface:
+        surfaceId: "s1"
+        catalogId: "topo-cat"
+    - version: "v0.9"
+      updateComponents:
+        surfaceId: "s1"
+        components:
+          - id: "root"
+            component: "Card"
+            child: "c1"
+          - id: "c1"
+            component: "Card"
+            child: "root"
+  expect_error:
+    category: "ValidationError"
+    message: "Circular reference detected"
+
+- name: test_topology_indirect_circular_reference_error
+  description: Tests that indirect circular references (root -> c1 -> c2 -> root) are detected and rejected.
+  action: process_messages
+  strict_mode: true
+  catalogs:
+    - catalog_id: "topo-cat"
+      version: "0.9"
+      catalog_schema:
+        catalogId: "topo-cat"
+        components:
+          Card:
+            type: "object"
+            properties:
+              child:
+                $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
+            required: ["component", "child"]
+  messages:
+    - version: "v0.9"
+      createSurface:
+        surfaceId: "s1"
+        catalogId: "topo-cat"
+    - version: "v0.9"
+      updateComponents:
+        surfaceId: "s1"
+        components:
+          - id: "root"
+            component: "Card"
+            child: "c1"
+          - id: "c1"
+            component: "Card"
+            child: "c2"
+          - id: "c2"
+            component: "Card"
+            child: "root"
+  expect_error:
+    category: "ValidationError"
+    message: "Circular reference detected"
+
+- name: test_topology_self_reference_error
+  description: Tests that self-referencing components (root -> root) are detected and rejected.
+  action: process_messages
+  strict_mode: true
+  catalogs:
+    - catalog_id: "topo-cat"
+      version: "0.9"
+      catalog_schema:
+        catalogId: "topo-cat"
+        components:
+          Card:
+            type: "object"
+            properties:
+              child:
+                $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
+            required: ["component", "child"]
+  messages:
+    - version: "v0.9"
+      createSurface:
+        surfaceId: "s1"
+        catalogId: "topo-cat"
+    - version: "v0.9"
+      updateComponents:
+        surfaceId: "s1"
+        components:
+          - id: "root"
+            component: "Card"
+            child: "root"
+  expect_error:
+    category: "ValidationError"
+    message: "Circular reference detected"
+
+- name: test_topology_dangling_child_reference_error
+  description: Tests that referencing a non-existent child component ID raises a validation error.
+  action: process_messages
+  strict_mode: true
+  catalogs:
+    - catalog_id: "topo-cat"
+      version: "0.9"
+      catalog_schema:
+        catalogId: "topo-cat"
+        components:
+          Card:
+            type: "object"
+            properties:
+              child:
+                $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
+            required: ["component", "child"]
+  messages:
+    - version: "v0.9"
+      createSurface:
+        surfaceId: "s1"
+        catalogId: "topo-cat"
+    - version: "v0.9"
+      updateComponents:
+        surfaceId: "s1"
+        components:
+          - id: "root"
+            component: "Card"
+            child: "missing_child_id"
+  expect_error:
+    category: "ValidationError"
+    message: "Dangling reference"
+
+- name: test_topology_orphaned_component_error
+  description: Tests that orphaned components unreachable from the root component fail validation in strict mode.
+  action: process_messages
+  strict_mode: true
+  catalogs:
+    - catalog_id: "topo-cat"
+      version: "0.9"
+      catalog_schema:
+        catalogId: "topo-cat"
+        components:
+          Card:
+            type: "object"
+            properties:
+              child:
+                $ref: "https://a2ui.org/specification/v0_9/common_types.json#/$defs/ComponentId"
+            required: ["component", "child"]
+          Text:
+            type: "object"
+            properties:
+              text:
+                type: "string"
+            required: ["component", "text"]
+  messages:
+    - version: "v0.9"
+      createSurface:
+        surfaceId: "s1"
+        catalogId: "topo-cat"
+    - version: "v0.9"
+      updateComponents:
+        surfaceId: "s1"
+        components:
+          - id: "root"
+            component: "Text"
+            text: "Hello"
+          - id: "orphan_comp"
+            component: "Text"
+            text: "Unreachable"
+  expect_error:
+    category: "ValidationError"
+    message: "Orphaned component"
+
+# --- 1.4 Strict Schema Validation & Atomic Rollback ---
 
 - name: test_update_components_strict_schema_validation_failure
   description: Tests that component properties violating catalog schema are rejected in strict mode.
