@@ -162,11 +162,7 @@ class ConformanceTest {
       val stepsList =
         (case[ConformanceTestHelper.KEY_STEPS] as? List<*>)
           ?: (case["validate"] as? List<*>)
-          ?: if (
-            case.containsKey("messages") || case.containsKey(ConformanceTestHelper.KEY_PAYLOAD)
-          )
-            listOf(case)
-          else null
+          ?: if (case.containsKey("messages")) listOf(case) else null
 
       if (stepsList == null) {
         throw IllegalArgumentException("No steps or messages found in test case: $name")
@@ -175,7 +171,7 @@ class ConformanceTest {
       val validate =
         stepsList.map { stepObj ->
           val step = stepObj as Map<*, *>
-          val payloadObj = step["messages"] ?: step[ConformanceTestHelper.KEY_PAYLOAD]
+          val payloadObj = step["messages"]
           val jsonStr = jsonMapper.writeValueAsString(payloadObj)
           val payload = Json.parseToJsonElement(jsonStr)
 

@@ -302,12 +302,12 @@ def test_validator_conformance(name, test_case):
     if steps is None and "validate" in test_case:
         steps = test_case["validate"]
 
-    if steps is None and ("messages" in test_case or "payload" in test_case):
+    if steps is None and "messages" in test_case:
         steps = [test_case]
 
     for step in steps:
         validator = A2uiValidator(catalog=catalog)
-        step_messages = step.get("messages") or step.get("payload")
+        step_messages = step["messages"]
         expect_error = step.get("expect_error") or test_case.get("expect_error")
         if expect_error:
             with assert_raises(expect_error):
@@ -415,8 +415,6 @@ def test_schema_manager_conformance(name, test_case):
                     assert selected.catalog_schema == expected
             if "expect_selected" in test_case:
                 assert selected.catalog_id == test_case["expect_selected"]
-            if "expect_catalog_schema" in test_case:
-                assert selected.catalog_schema == test_case["expect_catalog_schema"]
 
     elif action == "load_catalog":
         catalog_configs = test_case.get("catalog_configs", [])
@@ -435,18 +433,12 @@ def test_schema_manager_conformance(name, test_case):
         )
         selected = direct_json_format.get_selected_catalog()
         expected = test_case["expect"]
-        if (
-            "components" in expected
-            or "catalogId" in expected
-            or "catalog_id" in expected
-        ):
-            assert selected.catalog_schema == expected
-        elif "catalog_schema" in expected:
-            assert selected.catalog_schema == expected["catalog_schema"]
         if "supported_catalog_ids" in expected:
             assert [
                 c.catalog_id for c in direct_json_format._supported_catalogs
             ] == expected["supported_catalog_ids"]
+        else:
+            assert selected.catalog_schema == expected
 
     elif action == "generate_prompt":
         version = args.get("version", VERSION_0_8)
