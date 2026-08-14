@@ -181,8 +181,33 @@
         "theme": {
           "type": "object",
           "description": "Theme property schema definition."
+        },
+        "catalogId": {
+          "type": "string"
+        },
+        "protocolVersion": {
+          "type": "string"
+        },
+        "styles": {
+          "type": "object"
+        },
+        "$defs": {
+          "type": "object"
+        },
+        "version": {
+          "type": "string"
+        },
+        "s2c_schema": {},
+        "catalog_schema": {},
+        "common_types_schema": {},
+        "custom_cuttable_keys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "ExpectError": {
       "description": "Expected error specification (error message string, regex, or structured error object).",
