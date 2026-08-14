@@ -100,7 +100,7 @@
           "description": "Sequential steps for multi-step execution tests."
         },
         "expect": {
-          "description": "Expected outcome of the test action."
+          "description": "Expected outcome of the test action (evaluated as a contains / subset match rather than an exact match)."
         },
         "expect_error": {
           "$ref": "#/$defs/ExpectError"
@@ -233,7 +233,7 @@
           "description": "Arguments for this step."
         },
         "expect": {
-          "description": "Expected output for this step."
+          "description": "Expected output for this step (evaluated as a contains / subset match rather than an exact match)."
         },
         "expect_error": {
           "$ref": "#/$defs/ExpectError"
