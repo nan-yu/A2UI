@@ -50,6 +50,14 @@
           },
           "description": "List of file paths to catalog schema JSON files."
         },
+        "catalog_path": {
+          "type": "string",
+          "description": "File path to catalog schema JSON file."
+        },
+        "catalogPath": {
+          "type": "string",
+          "description": "File path to catalog schema JSON file."
+        },
         "catalog_id": {
           "type": "string",
           "description": "Target catalog identifier."
