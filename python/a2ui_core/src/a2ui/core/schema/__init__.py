@@ -27,7 +27,11 @@ from . import v1_0
 class A2uiProtocolVersion(str, Enum):
     V0_8 = "v0.8"
     V0_9 = "v0.9"
+    V0_9_1 = "v0.9.1"
     V1_0 = "v1.0"
+
+
+ProtocolVersion = A2uiProtocolVersion
 
 
 # Multi-version envelope unions (v1.0+ primary terminology)

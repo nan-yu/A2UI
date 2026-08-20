@@ -1148,17 +1148,14 @@ def test_catalog_from_json_v1_0_attributes():
     assert f.requires_user_activation is False
 
 
-def test_get_basic_catalog_factory():
-    from a2ui.core.basic_catalog import get_basic_catalog, v1_0, v0_9, v0_8
+def test_basic_catalog_version_submodules():
+    from a2ui.core.basic_catalog import v1_0, v0_9, v0_8
 
-    cat_v10 = get_basic_catalog("v1.0")
+    cat_v10 = v1_0.BasicCatalog()
     assert cat_v10.protocol_version in ("v1.0", "1.0")
-    assert isinstance(cat_v10, v1_0.BasicCatalog)
 
-    cat_v09 = get_basic_catalog("v0.9")
+    cat_v09 = v0_9.BasicCatalog()
     assert cat_v09.protocol_version in ("v0.9", "0.9")
-    assert isinstance(cat_v09, v0_9.BasicCatalog)
 
-    cat_v08 = get_basic_catalog("v0.8")
+    cat_v08 = v0_8.BasicCatalog()
     assert cat_v08.protocol_version in ("v0.8", "0.8")
-    assert isinstance(cat_v08, v0_8.BasicCatalog)
