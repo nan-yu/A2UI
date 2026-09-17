@@ -83,7 +83,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Require the main branch
-        if: github.ref != 'refs/heads/main'
+        if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/test-release-on-fork'
         run: |
           echo "::error::Releases must run from main. The OSS Exit Gate only" \
             "trusts this workflow at refs/heads/main, so a run from" \
@@ -202,15 +202,18 @@ jobs:
           done
 
       - name: Authenticate to Google Cloud
+        if: github.repository == 'a2ui-project/a2ui'
         uses: google-github-actions/auth@v3
         with:
           workload_identity_provider: ${{ env.WIF_PROVIDER }}
 
-      - uses: google-github-actions/setup-gcloud@v2
+      - if: github.repository == 'a2ui-project/a2ui'
+        uses: google-github-actions/setup-gcloud@v2
 
       # Staging is ordered core first, which is the order the plan emits, so a
       # new a2ui-core is in place before the a2ui-agent-sdk that requires it.
       - name: Stage in the Exit Gate Artifact Registry
+        if: github.repository == 'a2ui-project/a2ui'
         run: |
           set -euo pipefail
           jq -r '.[].directory' release-plan.json | while read -r directory; do
@@ -222,7 +225,7 @@ jobs:
           done
 
       - name: Discard the staged artifacts (dry run)
-        if: inputs.dry_run
+        if: inputs.dry_run && github.repository == 'a2ui-project/a2ui'
         run: |
           set -euo pipefail
           jq -r '.[] | "\(.pypi_name) \(.version)"' release-plan.json |
@@ -241,6 +244,25 @@ jobs:
             echo "nothing was published."
             echo
             jq -r '.[] | "* \(.pypi_name) \(.version) (\(.tag))"' release-plan.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fork dry-run summary
+        if: inputs.dry_run && github.repository != 'a2ui-project/a2ui'
+        run: |
+          {
+            echo "### Fork Dry Run Succeeded! 🎉"
+            echo
+            echo "Successfully tested the full build and verification pipeline:"
+            echo "- Checked out full git history and resolved reachable tags"
+            echo "- Computed next version from git tags"
+            echo "- Cut the changelog"
+            echo "- Ran tests and built wheel and sdist distributions"
+            echo "- Verified built artifact versions and twine distribution metadata"
+            echo
+            echo "Planned releases:"
+            jq -r '.[] | "* \(.pypi_name) \(.version) (\(.tag))"' release-plan.json
+            echo
+            echo "*(Google Cloud upload steps were skipped because fork is not allowlisted)*"
           } >> "$GITHUB_STEP_SUMMARY"
 
       # Past this point the artifacts are staged and the release is going

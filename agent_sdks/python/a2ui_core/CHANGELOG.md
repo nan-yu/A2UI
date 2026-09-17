@@ -1,5 +1,7 @@
 ## Unreleased
 
+- Test release automation on personal fork.
+
 ## 0.1.1
 
 - Enable type checks across `a2ui_core` (#1816).
