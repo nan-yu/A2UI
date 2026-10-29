@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>A2UI Code Review Dashboard</title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --card: #ffffff;
+        --fg: #1f2328;
+        --muted: #656d76;
+        --border: #d0d7de;
+        --accent: #0969da;
+        --post: #1a7f37;
+        --ignore: #8c959f;
+        --must: #cf222e;
+        --should: #bc4c00;
+        --consider: #9a6700;
+        --nit: #6e7781;
+        --warn-bg: #fff8c5;
+        --err-bg: #ffebe9;
+        --code-bg: #f6f8fa;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0d1117;
+          --card: #161b22;
+          --fg: #e6edf3;
+          --muted: #8d96a0;
+          --border: #30363d;
+          --accent: #4493f8;
+          --post: #3fb950;
+          --ignore: #6e7681;
+          --must: #f85149;
+          --should: #db6d28;
+          --consider: #d29922;
+          --nit: #8b949e;
+          --warn-bg: #3b2e00;
+          --err-bg: #3c1618;
+          --code-bg: #0d1117;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          14px/1.5 -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+      }
+      header {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border);
+        background: var(--card);
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      header h1 {
+        margin: 0 0 4px;
+        font-size: 18px;
+      }
+      header .meta {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      a {
+        color: var(--accent);
+      }
+      .stats {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
+      .chip {
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 2px 10px;
+        font-size: 12px;
+      }
+      .chip.post {
+        border-color: var(--post);
+        color: var(--post);
+      }
+      .chip.ignore {
+        border-color: var(--ignore);
+        color: var(--ignore);
+      }
+      .chip.undecided {
+        border-color: var(--should);
+        color: var(--should);
+      }
+      main {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 380px;
+        gap: 16px;
+        padding: 16px 24px;
+      }
+      @media (max-width: 1100px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+      }
+      .toolbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+      .toolbar label {
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+      }
+      input[type='search'],
+      select,
+      textarea {
+        background: var(--card);
+        color: var(--fg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 6px 8px;
+        font: inherit;
+      }
+      textarea {
+        width: 100%;
+        min-height: 120px;
+        resize: vertical;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12.5px;
+      }
+      button {
+        font: inherit;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--fg);
+        border-radius: 6px;
+        padding: 5px 12px;
+        cursor: pointer;
+      }
+      button:hover {
+        border-color: var(--accent);
+      }
+      button.primary {
+        background: var(--post);
+        border-color: var(--post);
+        color: #fff;
+      }
+      button.danger {
+        color: var(--must);
+        border-color: var(--must);
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 12px;
+      }
+      .card.decided-post {
+        border-left-color: var(--post);
+      }
+      .card.decided-ignore {
+        border-left-color: var(--ignore);
+        opacity: 0.72;
+      }
+      .card.focused {
+        outline: 2px solid var(--accent);
+      }
+      .card-head {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 12px 14px;
+        cursor: pointer;
+      }
+      .card-head .title {
+        font-weight: 600;
+        flex: 1;
+      }
+      .card-head .loc {
+        font-family: ui-monospace, monospace;
+        font-size: 12px;
+        color: var(--muted);
+        display: block;
+        font-weight: 400;
+        margin-top: 2px;
+        word-break: break-all;
+      }
+      .sev {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 4px;
+        color: #fff;
+        white-space: nowrap;
+      }
+      .sev.must {
+        background: var(--must);
+      }
+      .sev.should {
+        background: var(--should);
+      }
+      .sev.consider {
+        background: var(--consider);
+      }
+      .sev.nit {
+        background: var(--nit);
+      }
+      .badges {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+      }
+      .badge {
+        font-size: 11px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 0 6px;
+        color: var(--muted);
+      }
+      .badge.bad {
+        border-color: var(--must);
+        color: var(--must);
+      }
+      .badge.good {
+        border-color: var(--post);
+        color: var(--post);
+      }
+      .decision {
+        display: inline-flex;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .decision button {
+        border: 0;
+        border-radius: 0;
+        padding: 4px 12px;
+      }
+      .decision button.on.post {
+        background: var(--post);
+        color: #fff;
+      }
+      .decision button.on.ignore {
+        background: var(--ignore);
+        color: #fff;
+      }
+      .card-body {
+        padding: 0 14px 14px;
+        display: none;
+      }
+      .card.open .card-body {
+        display: block;
+      }
+      .section {
+        margin-top: 10px;
+      }
+      .section h4 {
+        margin: 0 0 4px;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+      }
+      pre {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px 10px;
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 12.5px;
+        max-height: 360px;
+        overflow: auto;
+      }
+      .reco {
+        font-size: 13px;
+        color: var(--muted);
+        padding: 0 14px 10px;
+      }
+      .reco strong {
+        color: var(--fg);
+      }
+      .missing {
+        background: var(--err-bg);
+        border-radius: 6px;
+        padding: 6px 10px;
+        margin-top: 8px;
+        font-size: 13px;
+      }
+      aside .panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+      aside {
+        position: sticky;
+        top: 110px;
+        align-self: start;
+        max-height: calc(100vh - 130px);
+        overflow: auto;
+      }
+      aside h3 {
+        margin: 0 0 8px;
+        font-size: 14px;
+      }
+      aside ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12.5px;
+      }
+      td,
+      th {
+        border-bottom: 1px solid var(--border);
+        padding: 4px;
+        text-align: left;
+        vertical-align: top;
+      }
+      .banner {
+        padding: 10px 24px;
+        background: var(--warn-bg);
+        display: none;
+      }
+      .banner.show {
+        display: block;
+      }
+      .done {
+        text-align: center;
+        padding: 80px 24px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1 id="pr-title">Loading findings…</h1>
+      <div class="meta" id="pr-meta"></div>
+      <div class="stats" id="stats"></div>
+    </header>
+    <div class="banner" id="banner"></div>
+    <main id="main">
+      <section>
+        <div class="toolbar">
+          <span class="hint">Severity:</span>
+          <label><input type="checkbox" data-sev="must" checked /> Must</label>
+          <label><input type="checkbox" data-sev="should" checked /> Should</label>
+          <label><input type="checkbox" data-sev="consider" checked /> Consider</label>
+          <label><input type="checkbox" data-sev="nit" checked /> Nit</label>
+          <select id="decision-filter" aria-label="Decision filter">
+            <option value="all">All decisions</option>
+            <option value="undecided">Undecided</option>
+            <option value="post">Post</option>
+            <option value="ignore">Ignore</option>
+          </select>
+          <input type="search" id="search" placeholder="Search title, path, text" />
+          <button id="apply-reco" title="Set every undecided finding to its recommendation">
+            Accept recommendations
+          </button>
+          <button id="toggle-all">Expand all</button>
+        </div>
+        <div id="cards"></div>
+        <p class="hint">
+          Keys: <b>j</b>/<b>k</b> move, <b>o</b> open, <b>p</b> post, <b>i</b> ignore (outside text
+          boxes).
+        </p>
+      </section>
+      <aside>
+        <div class="panel">
+          <h3>Review</h3>
+          <div class="row">
+            <label for="event">Event</label>
+            <select id="event">
+              <option value="COMMENT">Comment</option>
+              <option value="APPROVE">Approve</option>
+              <option value="REQUEST_CHANGES">Request changes</option>
+            </select>
+          </div>
+          <div class="hint" id="event-reco"></div>
+          <div class="section">
+            <h4>Summary (review body)</h4>
+            <textarea id="summary" rows="10"></textarea>
+            <div class="hint">
+              Findings without a diff line are appended to this body when posting.
+            </div>
+          </div>
+          <div class="section" id="plan"></div>
+          <div class="row" style="margin-top: 12px">
+            <button class="danger" id="abort">Abort</button>
+            <button class="primary" id="save">Save decisions</button>
+          </div>
+        </div>
+        <div class="panel" id="prior-panel" style="display: none">
+          <h3>Earlier findings</h3>
+          <table id="prior"></table>
+        </div>
+        <div class="panel" id="checks-panel" style="display: none">
+          <h3>What was checked</h3>
+          <div id="checks"></div>
+        </div>
+      </aside>
+    </main>
+    <script>
+      'use strict';
+      const SEVERITIES = ['must', 'should', 'consider', 'nit'];
+      const state = {data: null, focus: 0, allOpen: false};
+
+      function el(tag, attrs, ...children) {
+        const node = document.createElement(tag);
+        for (const [key, value] of Object.entries(attrs || {})) {
+          if (value === undefined || value === null || value === false) continue;
+          if (key === 'class') node.className = value;
+          else if (key.startsWith('on')) node.addEventListener(key.slice(2), value);
+          else node.setAttribute(key, value === true ? '' : String(value));
+        }
+        for (const child of children.flat()) {
+          if (child === null || child === undefined || child === false) continue;
+          node.append(child instanceof Node ? child : document.createTextNode(String(child)));
+        }
+        return node;
+      }
+
+      function safeGithubUrl(url) {
+        return typeof url === 'string' && /^https:\/\/github\.com\//.test(url) ? url : null;
+      }
+
+      function blobUrl(f) {
+        const pr = state.data.pr || {};
+        if (
+          !f.path ||
+          !/^[\w.-]+\/[\w.-]+$/.test(pr.repo || '') ||
+          !/^[0-9a-f]{7,40}$/.test(pr.head_sha || '')
+        )
+          return null;
+        const path = String(f.path).split('/').map(encodeURIComponent).join('/');
+        let url = `https://github.com/${pr.repo}/blob/${pr.head_sha}/${path}`;
+        if (Number.isInteger(f.line)) {
+          url +=
+            Number.isInteger(f.start_line) && f.start_line < f.line
+              ? `#L${f.start_line}-L${f.line}`
+              : `#L${f.line}`;
+        }
+        return url;
+      }
+
+      function formatLocation(f) {
+        if (!f.path) return '(no file; goes in the review body)';
+        if (!Number.isInteger(f.line)) return f.path;
+        const range =
+          Number.isInteger(f.start_line) && f.start_line < f.line
+            ? `${f.start_line}-${f.line}`
+            : f.line;
+        return `${f.path}:${range}`;
+      }
+
+      function visibleFindings() {
+        const sevs = new Set(
+          [...document.querySelectorAll('[data-sev]')]
+            .filter(c => c.checked)
+            .map(c => c.dataset.sev),
+        );
+        const dec = document.getElementById('decision-filter').value;
+        const q = document.getElementById('search').value.trim().toLowerCase();
+        return state.data.findings.filter(f => {
+          if (!sevs.has(f.severity)) return false;
+          const d = f.decision || 'undecided';
+          if (dec !== 'all' && d !== dec) return false;
+          if (!q) return true;
+          return [f.title, f.path, f.details, f.evidence, f.suggested_fix, f.comment_body].some(
+            v => typeof v === 'string' && v.toLowerCase().includes(q),
+          );
+        });
+      }
+
+      function renderStats() {
+        const fs = state.data.findings;
+        const count = d => fs.filter(f => (f.decision || 'undecided') === d).length;
+        const stats = document.getElementById('stats');
+        stats.replaceChildren(
+          el('span', {class: 'chip'}, `${fs.length} findings`),
+          ...SEVERITIES.map(s =>
+            el('span', {class: 'chip'}, `${s}: ${fs.filter(f => f.severity === s).length}`),
+          ),
+          el('span', {class: 'chip post'}, `post: ${count('post')}`),
+          el('span', {class: 'chip ignore'}, `ignore: ${count('ignore')}`),
+          el('span', {class: 'chip undecided'}, `undecided: ${count('undecided')}`),
+        );
+        const posting = fs.filter(f => f.decision === 'post');
+        const inline = posting.filter(
+          f => f.in_diff !== false && f.path && Number.isInteger(f.line),
+        ).length;
+        document
+          .getElementById('plan')
+          .replaceChildren(
+            el('h4', {}, 'Posting plan'),
+            el(
+              'div',
+              {class: 'hint'},
+              `${inline} inline comment(s), ${posting.length - inline} note(s) in the body. ` +
+                'Lines are checked against the PR diff again when posting.',
+            ),
+          );
+      }
+
+      function setDecision(f, decision) {
+        f.decision = f.decision === decision ? null : decision;
+        renderCards();
+      }
+
+      function missingFields(f) {
+        const missing = [];
+        if (!f.evidence || !String(f.evidence).trim()) missing.push('evidence');
+        if (!f.suggested_fix || !String(f.suggested_fix).trim()) missing.push('suggested fix');
+        return missing;
+      }
+
+      function card(f, index) {
+        const decided = f.decision ? `decided-${f.decision}` : '';
+        const open = f._open ?? state.allOpen;
+        const href = blobUrl(f);
+        const missing = missingFields(f);
+        const badges = el(
+          'div',
+          {class: 'badges'},
+          el(
+            'span',
+            {class: f.verified ? 'badge good' : 'badge bad'},
+            f.verified ? 'verified' : 'unconfirmed',
+          ),
+          f.evidence_type ? el('span', {class: 'badge'}, `evidence: ${f.evidence_type}`) : null,
+          f.category ? el('span', {class: 'badge'}, f.category) : null,
+          ...(Array.isArray(f.sdks) ? f.sdks.map(s => el('span', {class: 'badge'}, s)) : []),
+          f.pre_existing ? el('span', {class: 'badge bad'}, 'pre-existing') : null,
+          f.duplicate_of ? el('span', {class: 'badge bad'}, 'already raised') : null,
+          el(
+            'span',
+            {class: 'badge'},
+            f.in_diff === false || !f.path || !Number.isInteger(f.line) ? 'body note' : 'inline',
+          ),
+        );
+        const head = el(
+          'div',
+          {
+            class: 'card-head',
+            onclick: e => {
+              if (e.target.closest('button, a')) return;
+              f._open = !open;
+              state.focus = index;
+              renderCards();
+            },
+          },
+          el('span', {class: `sev ${f.severity}`}, f.severity),
+          el(
+            'div',
+            {class: 'title'},
+            `${f.id ? f.id + ' · ' : ''}${f.title || '(untitled)'}`,
+            el(
+              'span',
+              {class: 'loc'},
+              href
+                ? el('a', {href, target: '_blank', rel: 'noopener noreferrer'}, formatLocation(f))
+                : formatLocation(f),
+            ),
+            badges,
+          ),
+          el(
+            'div',
+            {class: 'decision'},
+            el(
+              'button',
+              {
+                class: `post ${f.decision === 'post' ? 'on' : ''}`,
+                onclick: () => setDecision(f, 'post'),
+              },
+              'Post',
+            ),
+            el(
+              'button',
+              {
+                class: `ignore ${f.decision === 'ignore' ? 'on' : ''}`,
+                onclick: () => setDecision(f, 'ignore'),
+              },
+              'Ignore',
+            ),
+          ),
+        );
+        const reco = el(
+          'div',
+          {class: 'reco'},
+          'Recommendation: ',
+          el('strong', {}, f.recommendation || 'none'),
+          f.recommendation_reason ? ` (${f.recommendation_reason})` : '',
+        );
+        const draft = el('textarea', {'aria-label': 'Comment draft'});
+        draft.value = f.comment_body || '';
+        draft.addEventListener('input', () => {
+          f.comment_body = draft.value;
+        });
+        const dup = safeGithubUrl(f.duplicate_of);
+        const body = el(
+          'div',
+          {class: 'card-body'},
+          missing.length
+            ? el(
+                'div',
+                {class: 'missing'},
+                `Missing ${missing.join(' and ')}. Don't post until the reviewer adds it.`,
+              )
+            : null,
+          dup
+            ? el(
+                'div',
+                {class: 'section'},
+                el('h4', {}, 'Already raised'),
+                el('a', {href: dup, target: '_blank', rel: 'noopener noreferrer'}, dup),
+              )
+            : null,
+          el(
+            'div',
+            {class: 'section'},
+            el('h4', {}, 'What is wrong'),
+            el('pre', {}, f.details || ''),
+          ),
+          el(
+            'div',
+            {class: 'section'},
+            el('h4', {}, 'Evidence'),
+            el('pre', {}, f.evidence || '(none)'),
+          ),
+          el(
+            'div',
+            {class: 'section'},
+            el('h4', {}, 'Suggested fix'),
+            el('pre', {}, f.suggested_fix || '(none)'),
+          ),
+          el('div', {class: 'section'}, el('h4', {}, 'Comment to post (editable)'), draft),
+        );
+        return el(
+          'div',
+          {
+            class: `card ${decided} ${open ? 'open' : ''} ${index === state.focus ? 'focused' : ''}`,
+            'data-index': index,
+          },
+          head,
+          reco,
+          body,
+        );
+      }
+
+      function renderCards() {
+        const list = visibleFindings();
+        if (state.focus >= list.length) state.focus = Math.max(0, list.length - 1);
+        document
+          .getElementById('cards')
+          .replaceChildren(
+            ...(list.length
+              ? list.map(card)
+              : [el('p', {class: 'hint'}, 'No findings match the filters.')]),
+          );
+        renderStats();
+      }
+
+      function renderSidebar() {
+        const d = state.data;
+        const eventSel = document.getElementById('event');
+        eventSel.value = d.event || d.recommended_event || 'COMMENT';
+        eventSel.addEventListener('change', () => {
+          d.event = eventSel.value;
+        });
+        d.event = eventSel.value;
+        document.getElementById('event-reco').textContent = d.recommended_event
+          ? `Recommended: ${d.recommended_event}${d.recommended_event_reason ? ' (' + d.recommended_event_reason + ')' : ''}`
+          : '';
+        const summary = document.getElementById('summary');
+        summary.value = d.summary || '';
+        summary.addEventListener('input', () => {
+          d.summary = summary.value;
+        });
+
+        if (Array.isArray(d.prior_findings) && d.prior_findings.length) {
+          document.getElementById('prior-panel').style.display = '';
+          document
+            .getElementById('prior')
+            .replaceChildren(
+              el(
+                'tr',
+                {},
+                el('th', {}, '#'),
+                el('th', {}, 'Earlier finding'),
+                el('th', {}, 'Status'),
+              ),
+              ...d.prior_findings.map(p =>
+                el(
+                  'tr',
+                  {title: p.evidence || ''},
+                  el('td', {}, p.id || ''),
+                  el('td', {}, p.title || ''),
+                  el('td', {}, (p.status || '').replace(/_/g, ' ')),
+                ),
+              ),
+            );
+        }
+        const verified = Array.isArray(d.verified_checks) ? d.verified_checks : [];
+        const notVerified = Array.isArray(d.not_verified) ? d.not_verified : [];
+        if (verified.length || notVerified.length) {
+          document.getElementById('checks-panel').style.display = '';
+          document.getElementById('checks').replaceChildren(
+            verified.length
+              ? el(
+                  'div',
+                  {},
+                  el('h4', {}, 'Verified'),
+                  el(
+                    'ul',
+                    {},
+                    verified.map(v => el('li', {}, v)),
+                  ),
+                )
+              : '',
+            notVerified.length
+              ? el(
+                  'div',
+                  {class: 'section'},
+                  el('h4', {}, 'Not verified'),
+                  el(
+                    'ul',
+                    {},
+                    notVerified.map(v => el('li', {}, v)),
+                  ),
+                )
+              : '',
+          );
+        }
+      }
+
+      function renderHeader() {
+        const pr = state.data.pr || {};
+        const title = document.getElementById('pr-title');
+        const url = safeGithubUrl(pr.url);
+        title.replaceChildren(
+          `Review: #${pr.number ?? '?'} `,
+          url
+            ? el('a', {href: url, target: '_blank', rel: 'noopener noreferrer'}, pr.title || '')
+            : pr.title || '',
+        );
+        const parts = [
+          pr.repo,
+          pr.author && `by ${pr.author}`,
+          pr.head_sha && `head ${String(pr.head_sha).slice(0, 9)}`,
+          state.data.mode === 'rereview' ? 're-review' : 'review',
+        ].filter(Boolean);
+        document.getElementById('pr-meta').textContent = parts.join(' · ');
+      }
+
+      async function post(path, payload) {
+        const res = await fetch(path, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: payload === undefined ? '{}' : JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || res.statusText);
+      }
+
+      function finish(message) {
+        document.getElementById('main').replaceChildren(el('div', {class: 'done'}, message));
+      }
+
+      async function save() {
+        const fs = state.data.findings;
+        const undecided = fs.filter(f => !f.decision);
+        const emptyPost = fs.filter(
+          f => f.decision === 'post' && !String(f.comment_body || '').trim(),
+        );
+        const noEvidence = fs.filter(f => f.decision === 'post' && missingFields(f).length);
+        if (emptyPost.length) {
+          alert(
+            `These findings are marked post but have no comment: ${emptyPost.map(f => f.id).join(', ')}`,
+          );
+          return;
+        }
+        if (
+          noEvidence.length &&
+          !confirm(
+            `${noEvidence.map(f => f.id).join(', ')} lack evidence or a suggested fix. Post anyway?`,
+          )
+        )
+          return;
+        if (
+          undecided.length &&
+          !confirm(`${undecided.length} finding(s) are undecided and will not be posted. Continue?`)
+        )
+          return;
+        const clean = JSON.parse(
+          JSON.stringify(state.data, (k, v) => (k === '_open' ? undefined : v)),
+        );
+        clean.findings.forEach(f => {
+          if (!f.decision) f.decision = 'ignore';
+        });
+        try {
+          await post('/api/save', clean);
+          finish(
+            'Decisions saved. You can close this tab; the assistant will post the approved comments.',
+          );
+        } catch (e) {
+          alert(`Save failed: ${e.message}`);
+        }
+      }
+
+      async function abort() {
+        if (!confirm('Abort the review? Nothing will be posted.')) return;
+        try {
+          await post('/api/abort');
+          finish('Aborted. Nothing was saved or posted.');
+        } catch (e) {
+          alert(`Abort failed: ${e.message}`);
+        }
+      }
+
+      function onKey(e) {
+        if (e.target.matches('textarea, input, select')) return;
+        const list = visibleFindings();
+        const f = list[state.focus];
+        if (e.key === 'j') state.focus = Math.min(list.length - 1, state.focus + 1);
+        else if (e.key === 'k') state.focus = Math.max(0, state.focus - 1);
+        else if (e.key === 'o' && f) f._open = !(f._open ?? state.allOpen);
+        else if (e.key === 'p' && f) {
+          f.decision = f.decision === 'post' ? null : 'post';
+        } else if (e.key === 'i' && f) {
+          f.decision = f.decision === 'ignore' ? null : 'ignore';
+        } else return;
+        renderCards();
+        document.querySelector('.card.focused')?.scrollIntoView({block: 'nearest'});
+      }
+
+      async function init() {
+        try {
+          const res = await fetch('/api/findings');
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || res.statusText);
+          if (!Array.isArray(data.findings)) throw new Error('findings.json has no findings list.');
+          const order = s => {
+            const i = SEVERITIES.indexOf(s);
+            return i < 0 ? 99 : i;
+          };
+          data.findings.sort((a, b) => order(a.severity) - order(b.severity));
+          data.findings.forEach(f => {
+            if (f.decision !== 'post' && f.decision !== 'ignore') f.decision = null;
+          });
+          state.data = data;
+        } catch (e) {
+          const banner = document.getElementById('banner');
+          banner.textContent = `Could not load findings: ${e.message}`;
+          banner.classList.add('show');
+          return;
+        }
+        renderHeader();
+        renderSidebar();
+        renderCards();
+        document
+          .querySelectorAll('[data-sev]')
+          .forEach(c => c.addEventListener('change', renderCards));
+        document.getElementById('decision-filter').addEventListener('change', renderCards);
+        document.getElementById('search').addEventListener('input', renderCards);
+        document.getElementById('apply-reco').addEventListener('click', () => {
+          state.data.findings.forEach(f => {
+            if (!f.decision && (f.recommendation === 'post' || f.recommendation === 'ignore'))
+              f.decision = f.recommendation;
+          });
+          renderCards();
+        });
+        document.getElementById('toggle-all').addEventListener('click', e => {
+          state.allOpen = !state.allOpen;
+          state.data.findings.forEach(f => {
+            delete f._open;
+          });
+          e.target.textContent = state.allOpen ? 'Collapse all' : 'Expand all';
+          renderCards();
+        });
+        document.getElementById('save').addEventListener('click', save);
+        document.getElementById('abort').addEventListener('click', abort);
+        document.addEventListener('keydown', onKey);
+      }
+      init();
+    </script>
+  </body>
+</html>
