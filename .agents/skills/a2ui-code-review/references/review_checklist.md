@@ -97,10 +97,12 @@ guarantee when it crosses a boundary:
 - Breaking changes are acceptable in pre-1.0 SDKs when they give a cleaner API,
   but they must be in the CHANGELOG.
 
-### Scope and size
+### Scope
 
 - Is every change needed for the PR's stated purpose? Unrelated changes belong
-  in a separate PR.
+  in a separate PR. Size alone is not a problem: PRs are written and reviewed
+  with AI help, so don't ask to split a large PR whose changes all serve one
+  purpose.
 - Keep diffs to specs, proposals, examples and test data minimal: no
   reordering, no renames (such as `Card` to `ComponentA`), no removed sections
   unless the PR needs it.

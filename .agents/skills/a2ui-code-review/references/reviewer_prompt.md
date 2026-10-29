@@ -50,7 +50,7 @@ these areas too, but don't spend time hunting for them.
 Pick scopes from what the PR touches, then layer the selected focus areas on
 top (see `focus_areas.md`). An area that needs dedicated runs, such as
 performance timings or streaming fuzzing across SDKs, can get its own
-reviewer whose scope is that area across all SDKs. Typical splits:
+reviewer whose scope is that area across all SDKs. Typical scopes:
 
 - **One per SDK** (Python, TypeScript, Dart, Swift): correctness, error
   handling, public exports and facades, tests, CHANGELOG, analyzers
@@ -61,9 +61,9 @@ reviewer whose scope is that area across all SDKs. Typical splits:
   every case and check every expectation? Were existing cases weakened?
 - **Spec, docs and scope:** spec and blueprint edits, version leaks, README
   commands that actually work, PR description accuracy, unrelated changes.
-- **Design and risk** (large PRs): is this the right layer, does it hide
-  problems, conflicts with in-flight PRs (`git merge-tree`), should it be
-  split?
+- **Design and risk** (PRs that change architecture or many SDKs at once): is
+  this the right layer, does it hide problems, does it conflict with in-flight
+  PRs (`git merge-tree`)? Large PRs are fine; don't ask to split them.
 - **Samples:** imports work, every example validates against the right
   version's schema and catalog, capabilities and catalog negotiation per
   version, session state handling.
