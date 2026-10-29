@@ -36,11 +36,21 @@ Rules:
 - Already raised, don't repeat: <list existing review comments and bot
   findings, with links>.
 - Accepted decisions, don't report: <list, or "none">.
+
+Focus areas (in addition to logic and correctness, which you always check):
+<for each selected area that applies to this scope: "- <Area>: <checks from
+references/focus_areas.md, or the agreed description of a custom area>">
+Check every focus area listed, and report for each one what you checked and
+what you found, even if nothing. Report serious correctness problems outside
+these areas too, but don't spend time hunting for them.
 ```
 
 ## Scopes
 
-Pick scopes from what the PR touches. Typical splits:
+Pick scopes from what the PR touches, then layer the selected focus areas on
+top (see `focus_areas.md`). An area that needs dedicated runs, such as
+performance timings or streaming fuzzing across SDKs, can get its own
+reviewer whose scope is that area across all SDKs. Typical splits:
 
 - **One per SDK** (Python, TypeScript, Dart, Swift): correctness, error
   handling, public exports and facades, tests, CHANGELOG, analyzers
@@ -72,6 +82,7 @@ Return JSON only:
       "title": "...",
       "severity": "must|should|consider|nit",
       "category": "correctness|parity|conformance|spec|api|performance|security|tests|docs|scope|ci|style",
+      "focus_area": "correctness, one of the focus areas above, or other",
       "sdks": ["python"],
       "path": "repo/relative/path at the head, or null",
       "line": 123, "start_line": null, "side": "RIGHT",
@@ -84,7 +95,8 @@ Return JSON only:
     }
   ],
   "verified_checks": ["commands you ran that passed"],
-  "not_verified": ["what you could not check and why"]
+  "not_verified": ["what you could not check and why"],
+  "focus_coverage": [{"area": "<focus area>", "summary": "what you checked and found"}]
 }
 Return at most ~10 findings, highest severity first. Skip pure style
 preferences. An empty findings list is a valid answer.

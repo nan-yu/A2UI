@@ -1,6 +1,6 @@
 ---
 name: a2ui-code-review
-description: Reviews a GitHub pull request in the A2UI repository with parallel scoped reviewers, requires evidence and a suggested fix for every finding, lets the user triage each finding (post or ignore) in a local dashboard, and posts the approved findings as one inline PR review. Use when asked to review, re-review, or "run a thorough review" on an A2UI PR.
+description: Reviews a GitHub pull request in the A2UI repository with parallel scoped reviewers, suggests review focus areas (performance, latency, synchronization, ...) that the user can select or extend, requires evidence and a suggested fix for every finding, lets the user triage each finding (post or ignore) in a local dashboard, and posts the approved findings as one inline PR review. Use when asked to review, re-review, or "run a thorough review" on an A2UI PR.
 ---
 
 # A2UI Code Review
@@ -18,6 +18,9 @@ Read these first:
 
 - [review_checklist.md](references/review_checklist.md): what to check, severity
   definitions, evidence rules, comment style.
+- [focus_areas.md](references/focus_areas.md): catalog of review focus areas
+  (performance, latency, synchronization, ...), when to suggest each, and what
+  to check.
 - [reviewer_prompt.md](references/reviewer_prompt.md): briefs for reviewer
   subagents, output contract, re-review brief.
 - [findings_schema.md](references/findings_schema.md): the `findings.json` format
@@ -58,18 +61,49 @@ your scratch directory, under `review_<N>/`.
    Install dependencies there if reviewers need to run code (`uv sync --all-packages`,
    `yarn install --immutable`, `dart pub get`).
 
-### Step 2: Plan scopes and fan out
+### Step 2: Choose focus areas
+
+Logic and correctness are always reviewed. Let the reviewer add focus areas on
+top, using the catalog in [focus_areas.md](references/focus_areas.md).
+
+1. If the request already names focus areas ("focus on latency and
+   synchronization"), map them to catalog areas, treat unknown ones as custom
+   areas, and skip to item 4.
+2. Otherwise, suggest the areas that fit this PR, based on the files and
+   features it touches (the "Suggest when" column), with the best three to
+   five first and one line on why each fits. Example: a streaming parser PR
+   suggests Latency and streaming, Performance, Synchronization and state, and
+   Cross-SDK parity.
+3. Ask the reviewer with a multi-select question: the suggested areas first,
+   then the rest of the catalog, plus a free-text option for new areas. The
+   reviewer can pick several, add their own, or pick none (correctness only).
+   Wait for the answer.
+4. For each custom area, write a one-line description of what to check, in
+   the same style as the catalog, and show it back to the reviewer with the
+   final list before you start.
+5. Record the selection in `focus_areas` in `findings.json` (catalog areas and
+   custom areas, each with its checks).
+
+### Step 3: Plan scopes and fan out
 
 1. Choose scopes from the files touched (see
    [reviewer_prompt.md](references/reviewer_prompt.md#scopes)). Typical: one per
    SDK, plus cross-SDK parity and conformance; add spec/docs/scope and design
    and risk for large PRs. Review small PRs yourself with the same contract.
-2. Launch one reviewer subagent per scope in parallel, each with the shared
-   preamble, its scope and the output contract. List the existing comments in
-   "already raised" and any decisions the user has accepted.
-3. Tell the user which scopes are running, then wait for the results.
+2. Apply the focus areas (see
+   [focus_areas.md](references/focus_areas.md#how-the-focus-is-used)): add each
+   area's checks to every brief it applies to, and give an area its own
+   reviewer when it needs dedicated runs, such as performance timings or
+   streaming fuzzing across SDKs. If the reviewer narrowed the review ("only
+   performance", "only the Python changes"), drop the other scopes.
+3. Launch one reviewer subagent per scope in parallel, each with the shared
+   preamble, its focus areas, its scope and the output contract. List the
+   existing comments in "already raised" and any decisions the user has
+   accepted.
+4. Tell the user which scopes and focus areas are running, then wait for the
+   results.
 
-### Step 3: Consolidate and verify
+### Step 4: Consolidate and verify
 
 1. Merge the reviewers' findings. Deduplicate across scopes: one finding per
    root cause, with every affected SDK in `sdks`.
@@ -78,25 +112,32 @@ your scratch directory, under `review_<N>/`.
 3. Drop or demote findings without evidence or a suggested fix. Don't invent
    evidence; ask the reviewer or check yourself.
 4. Mark `pre_existing` and `duplicate_of` (link the existing comment).
-5. Set `recommendation` and `recommendation_reason` using the defaults in
-   [review_checklist.md](references/review_checklist.md#severity).
-6. Pick the line for each inline comment: the exact line the fix touches at the
+5. Tag each finding with its `focus_area` (`correctness` or one of the
+   selected areas; `other` if it fits none of them).
+6. Set `recommendation` and `recommendation_reason` using the defaults in
+   [review_checklist.md](references/review_checklist.md#severity). Findings
+   outside the selected focus areas default to `ignore` unless they are
+   `must`.
+7. Write one line per selected focus area in `focus_coverage`: what was
+   checked and what was found, including "checked, no issues found".
+8. Pick the line for each inline comment: the exact line the fix touches at the
    head, and it must be an added or context line in the diff. Set `in_diff`;
    findings without a diff line go into the review body.
-7. Draft `comment_body` for each finding in the house style: what is wrong, a
+9. Draft `comment_body` for each finding in the house style: what is wrong, a
    short repro, a suggested fix phrased as a question where natural. No finding
    IDs and no footer.
-8. Draft `summary`: thanks and what works, then the items with no diff line
-   (conformance gaps, PR description issues), then minor notes.
-9. Pick `recommended_event` with a reason. Default to `COMMENT`.
-10. Write `findings.json` per [findings_schema.md](references/findings_schema.md).
+10. Draft `summary`: thanks and what works, then the items with no diff line
+    (conformance gaps, PR description issues), then minor notes.
+11. Pick `recommended_event` with a reason. Default to `COMMENT`.
+12. Write `findings.json` per [findings_schema.md](references/findings_schema.md).
 
-### Step 4: Triage in the dashboard
+### Step 5: Triage in the dashboard
 
 1. In the conversation, give a short verdict and a list of the `must` and
    `should` findings (one line each with `file:line`), and say the full detail
    is in the dashboard.
-2. Start the dashboard as a background task (`WaitMsBeforeAsync` about 1000):
+2. Start the dashboard as a background task, so you are notified when it
+   exits instead of blocking on it:
    ```bash
    python3 .agents/skills/a2ui-code-review/scripts/launch_dashboard.py \
      --data-file "<scratch>/review_<N>/findings.json" \
@@ -106,16 +147,17 @@ your scratch directory, under `review_<N>/`.
 3. Stop and wait. The task ends when the user clicks **Save decisions** (exit 0) or **Abort** (exit 1). If aborted, post nothing and ask the user what to
    do next.
 
-In the dashboard the user can filter by severity and decision, read the
-details, evidence and suggested fix of each finding, mark it **Post** or
-**Ignore** (or accept all recommendations), edit the comment text, choose the
-review event (comment, approve, request changes) and edit the summary.
+In the dashboard the user can filter by severity, focus area and decision,
+see how each selected focus area was covered, read the details, evidence and
+suggested fix of each finding, mark it **Post** or **Ignore** (or accept all
+recommendations), edit the comment text, choose the review event (comment,
+approve, request changes) and edit the summary.
 
 If the user prefers to triage in the conversation (for example "post must and
 should only" or "approve with comments for #1 and #2"), apply that to
 `findings.json` yourself, write it as the decisions file, and continue.
 
-### Step 5: Post
+### Step 6: Post
 
 1. Dry run first. It checks every inline comment against the lines GitHub
    accepts for the current diff and warns if the PR head moved:
@@ -139,13 +181,14 @@ should only" or "approve with comments for #1 and #2"), apply that to
 ## Re-review
 
 1. Load the earlier `findings.json` (or the posted review) and find the
-   previously reviewed head.
+   previously reviewed head. Reuse its `focus_areas` unless the reviewer
+   wants to change them; offer the same multi-select as in Step 2.
 2. Brief reviewers with the re-review brief in
    [reviewer_prompt.md](references/reviewer_prompt.md#re-review-brief): status
    of each earlier finding with evidence, plus new bugs in
    `git diff <old_sha> <new_sha>`.
 3. Fill `prior_findings` with the statuses and put only new or still-open
-   problems in `findings`. Then continue from Step 3.
+   problems in `findings`. Then continue from Step 4.
 
 ## Bundled resources
 

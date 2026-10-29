@@ -16,6 +16,8 @@ it to plan the reviewer scopes and to brief each reviewer.
 Recommend `ignore` for anything unconfirmed, pre-existing and not made worse,
 already raised by another reviewer (including bots such as gemini-code-assist),
 already deferred with a reason in an earlier round, or out of the PR's scope.
+When the reviewer selected focus areas (see `focus_areas.md`), findings outside
+those areas also default to `ignore` unless they are `must`.
 
 ## Evidence
 

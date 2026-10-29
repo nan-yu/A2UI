@@ -7,18 +7,20 @@ filled in. `scripts/post_review.py` reads the decisions file.
 
 ## Top level
 
-| Field                      | Type            | Notes                                                                                                                                                           |
-| -------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pr`                       | object          | `repo` (`a2ui-project/a2ui`), `number`, `title`, `url`, `author`, `base`, `head_sha` (the commit you reviewed; used as `commit_id` and to detect a moved head). |
-| `mode`                     | string          | `review` or `rereview`.                                                                                                                                         |
-| `recommended_event`        | string          | `COMMENT`, `APPROVE` or `REQUEST_CHANGES`.                                                                                                                      |
-| `recommended_event_reason` | string          | One sentence.                                                                                                                                                   |
-| `event`                    | string          | Set by the dashboard. Defaults to `recommended_event`.                                                                                                          |
-| `summary`                  | string          | Draft review body. Starts with thanks and what works, then the items that have no diff line. No finding IDs.                                                    |
-| `prior_findings`           | list            | Re-review only: `{id, title, status, evidence}`, where `status` is `fixed`, `partially_fixed`, `not_fixed` or `not_applicable`.                                 |
-| `verified_checks`          | list of strings | What passed (tests, analyzers, fuzzing, conformance runs).                                                                                                      |
-| `not_verified`             | list of strings | What could not be checked, and why.                                                                                                                             |
-| `findings`                 | list            | See below.                                                                                                                                                      |
+| Field                      | Type            | Notes                                                                                                                                                                                                                                                  |
+| -------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pr`                       | object          | `repo` (`a2ui-project/a2ui`), `number`, `title`, `url`, `author`, `base`, `head_sha` (the commit you reviewed; used as `commit_id` and to detect a moved head).                                                                                        |
+| `mode`                     | string          | `review` or `rereview`.                                                                                                                                                                                                                                |
+| `focus_areas`              | list            | Selected focus areas on top of correctness: `{name, checks, custom}`. `name` is a catalog area from `focus_areas.md` or the reviewer's own; `checks` is what to look for; `custom` is true for areas the reviewer added. Empty means correctness only. |
+| `recommended_event`        | string          | `COMMENT`, `APPROVE` or `REQUEST_CHANGES`.                                                                                                                                                                                                             |
+| `recommended_event_reason` | string          | One sentence.                                                                                                                                                                                                                                          |
+| `event`                    | string          | Set by the dashboard. Defaults to `recommended_event`.                                                                                                                                                                                                 |
+| `summary`                  | string          | Draft review body. Starts with thanks and what works, then the items that have no diff line. No finding IDs.                                                                                                                                           |
+| `prior_findings`           | list            | Re-review only: `{id, title, status, evidence}`, where `status` is `fixed`, `partially_fixed`, `not_fixed` or `not_applicable`.                                                                                                                        |
+| `focus_coverage`           | list            | One entry per selected focus area: `{area, summary}`, what was checked and found, including "checked, no issues found".                                                                                                                                |
+| `verified_checks`          | list of strings | What passed (tests, analyzers, fuzzing, conformance runs).                                                                                                                                                                                             |
+| `not_verified`             | list of strings | What could not be checked, and why.                                                                                                                                                                                                                    |
+| `findings`                 | list            | See below.                                                                                                                                                                                                                                             |
 
 ## Finding
 
@@ -31,6 +33,7 @@ finding without them, and it should not be posted.
 | `title`                 | string         | One line, states the defect, not the area.                                                                                                                   |
 | `severity`              | string         | `must`, `should`, `consider` or `nit`. See the checklist for definitions.                                                                                    |
 | `category`              | string         | `correctness`, `parity`, `conformance`, `spec`, `api`, `performance`, `security`, `tests`, `docs`, `scope`, `ci` or `style`.                                 |
+| `focus_area`            | string         | `correctness`, the `name` of a selected focus area, or `other`. Findings tagged `other` default to `ignore` unless `must`.                                   |
 | `sdks`                  | list           | Affected SDKs, e.g. `["python", "typescript"]`.                                                                                                              |
 | `path`                  | string or null | Repo-relative path at the PR head. Null for PR-level notes.                                                                                                  |
 | `line`                  | int or null    | Line at the PR head (RIGHT side), or the old line with `side: LEFT`.                                                                                         |
@@ -63,6 +66,28 @@ finding without them, and it should not be posted.
     "head_sha": "79d571fc097c14e4cb6ff95d673e69d3b5dd7ff2"
   },
   "mode": "review",
+  "focus_areas": [
+    {
+      "name": "Latency and streaming",
+      "checks": "Time to first render, held-back output, behavior at chunk sizes 1, 2, 7 and 1000.",
+      "custom": false
+    },
+    {
+      "name": "Express grammar fidelity",
+      "checks": "Scanners agree with Express.g4 on comments, strings and raw strings.",
+      "custom": true
+    }
+  ],
+  "focus_coverage": [
+    {
+      "area": "Latency and streaming",
+      "summary": "Fuzzed all SDKs at chunk sizes 1, 2, 7 and 1000; see F1."
+    },
+    {
+      "area": "Express grammar fidelity",
+      "summary": "Scanners treat `--` as a comment, which Express.g4 does not define."
+    }
+  ],
   "recommended_event": "COMMENT",
   "recommended_event_reason": "Several verified streaming bugs; design and tests are otherwise strong.",
   "summary": "Thanks for this. Streaming Express across all three SDKs is a big step...",
@@ -77,6 +102,7 @@ finding without them, and it should not be posted.
       "title": "Healed component followed by id= leaves an orphan",
       "severity": "must",
       "category": "correctness",
+      "focus_area": "correctness",
       "sdks": ["python", "typescript", "dart"],
       "path": "python/a2ui_agent/src/a2ui/inference_formats/express/response_stream.py",
       "line": 288,

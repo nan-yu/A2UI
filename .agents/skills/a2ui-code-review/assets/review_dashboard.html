@@ -234,6 +234,14 @@
         border-color: var(--must);
         color: var(--must);
       }
+      .badge.focus,
+      .chip.focus {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .missing-coverage {
+        color: var(--must);
+      }
       .badge.good {
         border-color: var(--post);
         color: var(--post);
@@ -310,9 +318,9 @@
       }
       aside {
         position: sticky;
-        top: 110px;
+        top: 170px;
         align-self: start;
-        max-height: calc(100vh - 130px);
+        max-height: calc(100vh - 190px);
         overflow: auto;
       }
       aside h3 {
@@ -365,6 +373,7 @@
     <header>
       <h1 id="pr-title">Loading findings…</h1>
       <div class="meta" id="pr-meta"></div>
+      <div class="stats" id="focus-chips"></div>
       <div class="stats" id="stats"></div>
     </header>
     <div class="banner" id="banner"></div>
@@ -381,6 +390,9 @@
             <option value="undecided">Undecided</option>
             <option value="post">Post</option>
             <option value="ignore">Ignore</option>
+          </select>
+          <select id="focus-filter" aria-label="Focus area filter">
+            <option value="all">All focus areas</option>
           </select>
           <input type="search" id="search" placeholder="Search title, path, text" />
           <button id="apply-reco" title="Set every undecided finding to its recommendation">
@@ -422,6 +434,10 @@
         <div class="panel" id="prior-panel" style="display: none">
           <h3>Earlier findings</h3>
           <table id="prior"></table>
+        </div>
+        <div class="panel" id="coverage-panel" style="display: none">
+          <h3>Focus coverage</h3>
+          <div id="coverage"></div>
         </div>
         <div class="panel" id="checks-panel" style="display: none">
           <h3>What was checked</h3>
@@ -482,6 +498,22 @@
         return `${f.path}:${range}`;
       }
 
+      function focusNames() {
+        const areas = Array.isArray(state.data.focus_areas) ? state.data.focus_areas : [];
+        return areas
+          .map(a => (typeof a === 'string' ? a : a && a.name))
+          .filter(n => typeof n === 'string' && n.trim());
+      }
+
+      function findingFocus(f) {
+        return typeof f.focus_area === 'string' && f.focus_area.trim() ? f.focus_area : 'other';
+      }
+
+      function inFocus(f) {
+        const area = findingFocus(f);
+        return area === 'correctness' || focusNames().includes(area);
+      }
+
       function visibleFindings() {
         const sevs = new Set(
           [...document.querySelectorAll('[data-sev]')]
@@ -489,15 +521,23 @@
             .map(c => c.dataset.sev),
         );
         const dec = document.getElementById('decision-filter').value;
+        const focus = document.getElementById('focus-filter').value;
         const q = document.getElementById('search').value.trim().toLowerCase();
         return state.data.findings.filter(f => {
           if (!sevs.has(f.severity)) return false;
           const d = f.decision || 'undecided';
           if (dec !== 'all' && d !== dec) return false;
+          if (focus !== 'all' && findingFocus(f) !== focus) return false;
           if (!q) return true;
-          return [f.title, f.path, f.details, f.evidence, f.suggested_fix, f.comment_body].some(
-            v => typeof v === 'string' && v.toLowerCase().includes(q),
-          );
+          return [
+            f.title,
+            f.path,
+            f.focus_area,
+            f.details,
+            f.evidence,
+            f.suggested_fix,
+            f.comment_body,
+          ].some(v => typeof v === 'string' && v.toLowerCase().includes(q));
         });
       }
 
@@ -558,6 +598,11 @@
           ),
           f.evidence_type ? el('span', {class: 'badge'}, `evidence: ${f.evidence_type}`) : null,
           f.category ? el('span', {class: 'badge'}, f.category) : null,
+          el(
+            'span',
+            {class: inFocus(f) ? 'badge focus' : 'badge bad', title: 'Focus area'},
+            inFocus(f) ? `focus: ${findingFocus(f)}` : 'outside focus',
+          ),
           ...(Array.isArray(f.sdks) ? f.sdks.map(s => el('span', {class: 'badge'}, s)) : []),
           f.pre_existing ? el('span', {class: 'badge bad'}, 'pre-existing') : null,
           f.duplicate_of ? el('span', {class: 'badge bad'}, 'already raised') : null,
@@ -779,6 +824,55 @@
           state.data.mode === 'rereview' ? 're-review' : 'review',
         ].filter(Boolean);
         document.getElementById('pr-meta').textContent = parts.join(' · ');
+
+        const areas = Array.isArray(state.data.focus_areas) ? state.data.focus_areas : [];
+        document.getElementById('focus-chips').replaceChildren(
+          el('span', {class: 'hint'}, 'Focus:'),
+          el('span', {class: 'chip focus'}, 'correctness'),
+          ...areas
+            .filter(a => a && (typeof a === 'string' || typeof a.name === 'string'))
+            .map(a => {
+              const name = typeof a === 'string' ? a : a.name;
+              return el(
+                'span',
+                {class: 'chip focus', title: (a && a.checks) || ''},
+                a && a.custom ? `${name} (custom)` : name,
+              );
+            }),
+        );
+      }
+
+      function renderFocusFilter() {
+        const present = state.data.findings.map(findingFocus);
+        const names = [...new Set(['correctness', ...focusNames(), ...present])];
+        document
+          .getElementById('focus-filter')
+          .replaceChildren(
+            el('option', {value: 'all'}, 'All focus areas'),
+            ...names.map(n =>
+              el('option', {value: n}, `${n} (${present.filter(p => p === n).length})`),
+            ),
+          );
+      }
+
+      function renderCoverage() {
+        const coverage = Array.isArray(state.data.focus_coverage) ? state.data.focus_coverage : [];
+        const covered = new Set(coverage.map(c => c && c.area));
+        const missing = focusNames().filter(n => !covered.has(n));
+        if (!coverage.length && !missing.length) return;
+        document.getElementById('coverage-panel').style.display = '';
+        document.getElementById('coverage').replaceChildren(
+          el(
+            'ul',
+            {},
+            coverage
+              .filter(c => c && c.area)
+              .map(c => el('li', {}, el('strong', {}, c.area), `: ${c.summary || ''}`)),
+            missing.map(n =>
+              el('li', {class: 'missing-coverage'}, el('strong', {}, n), ': no coverage reported'),
+            ),
+          ),
+        );
       }
 
       async function post(path, payload) {
@@ -884,11 +978,14 @@
         }
         renderHeader();
         renderSidebar();
+        renderFocusFilter();
+        renderCoverage();
         renderCards();
         document
           .querySelectorAll('[data-sev]')
           .forEach(c => c.addEventListener('change', renderCards));
         document.getElementById('decision-filter').addEventListener('change', renderCards);
+        document.getElementById('focus-filter').addEventListener('change', renderCards);
         document.getElementById('search').addEventListener('input', renderCards);
         document.getElementById('apply-reco').addEventListener('click', () => {
           state.data.findings.forEach(f => {
